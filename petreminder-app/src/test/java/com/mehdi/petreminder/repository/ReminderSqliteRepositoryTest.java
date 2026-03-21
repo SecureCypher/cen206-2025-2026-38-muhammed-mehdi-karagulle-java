@@ -246,4 +246,86 @@ class ReminderSqliteRepositoryTest {
         assertEquals("Dr.Ali", back.getVeterinarianName());
         assertTrue(back.isConfirmed());
     }
+
+    // bilinmeyen reminder_type default case — fallback FeedingReminder
+    @Test
+    @DisplayName("mapRow: bilinmeyen reminder_type default case")
+    void testMapRowDefaultType() throws Exception {
+        FeedingReminder fr = new FeedingReminder(0, 1, "Rex", T, "Mama", 100);
+        int id = repo.save(fr);
+        // reminder_type'ı SQL ile bilinmeyen bir değere güncelle
+        conn.createStatement().executeUpdate(
+            "UPDATE reminders SET reminder_type='Bilinmeyen' WHERE id=" + id);
+        var found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertEquals("Besleme", found.get().getReminderType()); // default FeedingReminder
+    }
+
+
+    @Test
+    @DisplayName("update FeedingReminder: setUpdateParams")
+    void testUpdateFeeding() {
+        FeedingReminder fr = new FeedingReminder(0, 1, "Rex", T, "Mama", 100);
+        repo.save(fr);
+        fr.setDescription("Updated");
+        assertTrue(repo.update(fr));
+    }
+
+    // update MedicationReminder — setUpdateParams type branch coverage
+    @Test
+    @DisplayName("update MedicationReminder")
+    void testUpdateMedication() {
+        MedicationReminder mr = new MedicationReminder(0, 1, "Rex", T,
+            "Antibiyotik", 250, "mg");
+        repo.save(mr);
+        mr.setDescription("Updated");
+        assertTrue(repo.update(mr));
+    }
+
+    // update ExerciseReminder — setUpdateParams type branch coverage
+    @Test
+    @DisplayName("update ExerciseReminder")
+    void testUpdateExercise() {
+        ExerciseReminder er = new ExerciseReminder(0, 1, "Rex", T, "Yürüyüş", 30);
+        repo.save(er);
+        er.setDescription("Updated");
+        assertTrue(repo.update(er));
+    }
+
+    // update GroomingReminder — setUpdateParams type branch coverage
+    @Test
+    @DisplayName("update GroomingReminder")
+    void testUpdateGrooming() {
+        GroomingReminder gr = new GroomingReminder(0, 1, "Rex", T, "Tıraş", true);
+        repo.save(gr);
+        gr.setDescription("Updated");
+        assertTrue(repo.update(gr));
+    }
+
+    // update VetAppointment — setUpdateParams type branch coverage
+    @Test
+    @DisplayName("update VetAppointment")
+    void testUpdateVet() {
+        VetAppointment va = new VetAppointment(0, 1, "Rex", T, "Dr.Ali", "Klinik", "Kontrol");
+        repo.save(va);
+        va.setDescription("Updated");
+        assertTrue(repo.update(va));
+    }
+
+    // findByPetId exception — bağlantı kapalıyken çağrı
+    @Test
+    @DisplayName("findByPetId: kapalı bağlantı exception")
+    void testFindByPetIdException() throws Exception {
+        conn.close();
+        assertThrows(RepositoryException.class, () -> repo.findByPetId(1));
+    }
+
+    // findByOwnerId (Pet repo benzeri) exception — bağlantı kapalıyken çağrı
+    @Test
+    @DisplayName("findByPetId: boş sonuç")
+    void testFindByPetIdEmpty() {
+        var result = repo.findByPetId(9999);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
 }

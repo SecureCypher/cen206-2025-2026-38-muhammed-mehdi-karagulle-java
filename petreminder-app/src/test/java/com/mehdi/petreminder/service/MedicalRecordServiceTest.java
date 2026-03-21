@@ -159,4 +159,18 @@ class MedicalRecordServiceTest {
         assertDoesNotThrow(() -> service.close());
         verify(mockRepo).close();
     }
+
+    // Varsayılan yapıcı coverage
+    @Test @DisplayName("Varsayılan yapıcı")
+    void testDefaultConstructor() {
+        assertDoesNotThrow(() -> new MedicalRecordService());
+    }
+
+    // addRecord: null recordType fırlatır — eksik branch coverage
+    @Test @DisplayName("addRecord: null recordType fırlatır")
+    void testAddNullType() {
+        MedicalRecord r = makeRecord(0);
+        r.setRecordType(null);
+        assertThrows(ServiceException.class, () -> service.addRecord(r));
+    }
 }

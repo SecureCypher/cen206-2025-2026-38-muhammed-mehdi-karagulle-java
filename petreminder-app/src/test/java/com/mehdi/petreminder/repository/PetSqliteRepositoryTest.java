@@ -200,4 +200,115 @@ class PetSqliteRepositoryTest {
         assertTrue(found.isPresent());
         assertNull(found.get().getBirthDate());
     }
+
+    // species="Dog" (İngilizce) mapRow ile Dog olarak dönmeli — branch coverage
+    @Test
+    @DisplayName("mapRow: species='Dog' Dog olarak dönmeli")
+    void testMapRowDogEnglish() throws Exception {
+        // Dog kaydet, sonra SQL ile species'i "Dog" yap, sonra findById ile oku
+        Dog dog = new Dog(0, "EnglishDog", null, 1);
+        dog.setBreed("Beagle");
+        int id = repo.save(dog);
+        // species'i SQL ile güncelle
+        conn.createStatement().executeUpdate(
+            "UPDATE pets SET species='Dog' WHERE id=" + id);
+        Optional<Pet> found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertInstanceOf(Dog.class, found.get());
+    }
+
+    // species="Cat" (İngilizce) mapRow ile Cat olarak dönmeli — branch coverage
+    @Test
+    @DisplayName("mapRow: species='Cat' Cat olarak dönmeli")
+    void testMapRowCatEnglish() throws Exception {
+        Cat cat = new Cat(0, "EnglishCat", null, 1);
+        cat.setBreed("Persian");
+        int id = repo.save(cat);
+        // species'i SQL ile güncelle
+        conn.createStatement().executeUpdate(
+            "UPDATE pets SET species='Cat' WHERE id=" + id);
+        Optional<Pet> found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertInstanceOf(Cat.class, found.get());
+    }
+
+    // species bilinmeyen Bird olarak dönmeli — else branch coverage
+    @Test
+    @DisplayName("mapRow: bilinmeyen species Bird olarak dönmeli")
+    void testMapRowUnknownSpeciesFallbackToBird() throws Exception {
+        Bird bird = new Bird(0, "Parrot", null, 1);
+        int id = repo.save(bird);
+        conn.createStatement().executeUpdate(
+            "UPDATE pets SET species='Unknown' WHERE id=" + id);
+        Optional<Pet> found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertInstanceOf(Bird.class, found.get());
+    }
+
+    // Cat update — setInsertParams Cat branch coverage
+    @Test
+    @DisplayName("update Cat: setInsertParams Cat branchı")
+    void testUpdateCat() {
+        Cat cat = new Cat(0, "Tekir", null, 1);
+        cat.setBreed("Ankara");
+        cat.setIndoor(true);
+        repo.save(cat);
+        cat.setName("UpdatedCat");
+        assertTrue(repo.update(cat));
+        assertEquals("UpdatedCat", repo.findById(cat.getId()).get().getName());
+    }
+
+    // Bird update — setInsertParams Bird branch coverage
+    @Test
+    @DisplayName("update Bird: setInsertParams Bird branchı")
+    void testUpdateBird() {
+        Bird bird = new Bird(0, "Cici", null, 1);
+        bird.setBirdType("Papagan");
+        bird.setCanTalk(true);
+        repo.save(bird);
+        bird.setName("UpdatedBird");
+        assertTrue(repo.update(bird));
+        assertEquals("UpdatedBird", repo.findById(bird.getId()).get().getName());
+    }
+
+    // Dog update trained=true — setInsertParams isTrained branch coverage
+    @Test
+    @DisplayName("update Dog: trained=true branchı")
+    void testUpdateDogTrained() {
+        Dog dog = new Dog(0, "TrainedDog", null, 1);
+        dog.setBreed("Husky");
+        dog.setTrained(true);
+        repo.save(dog);
+        dog.setName("Updated");
+        assertTrue(repo.update(dog));
+        var found = repo.findById(dog.getId());
+        assertTrue(found.isPresent());
+        assertInstanceOf(Dog.class, found.get());
+    }
+
+    // Bird save canTalk=false — setInsertParams canTalk false branch
+    @Test
+    @DisplayName("save Bird: canTalk=false")
+    void testSaveBirdCanTalkFalse() {
+        Bird bird = new Bird(0, "Quiet", null, 1);
+        bird.setBirdType("Serçe");
+        bird.setCanTalk(false);
+        int id = repo.save(bird);
+        var found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertInstanceOf(Bird.class, found.get());
+    }
+
+    // Cat save indoor=false — setInsertParams isIndoor false branch
+    @Test
+    @DisplayName("save Cat: indoor=false")
+    void testSaveCatOutdoor() {
+        Cat cat = new Cat(0, "Outdoor", null, 1);
+        cat.setBreed("Van");
+        cat.setIndoor(false);
+        int id = repo.save(cat);
+        var found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertInstanceOf(Cat.class, found.get());
+    }
 }

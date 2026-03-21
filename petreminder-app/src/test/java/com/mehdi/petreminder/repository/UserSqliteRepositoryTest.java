@@ -190,4 +190,46 @@ class UserSqliteRepositoryTest {
         int id = repo.save(u);
         assertTrue(id > 0);
     }
+
+    // null createdAt — mapRow ve setInsertParams null branch coverage
+    @Test
+    @DisplayName("null createdAt: kayıt ve okuma")
+    void testNullCreatedAt() {
+        User u = new User(0, "nodate", "nodate@test.com", "hash", "No Date");
+        u.setCreatedAt(null);
+        int id = repo.save(u);
+        var found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertNull(found.get().getCreatedAt());
+    }
+
+    // update — setUpdateParams coverage
+    @Test
+    @DisplayName("update: createdAt ile güncelleme")
+    void testUpdateWithCreatedAt() {
+        User u = makeUser("updatetest");
+        u.setCreatedAt(LocalDateTime.of(2026, 6, 15, 10, 0));
+        repo.save(u);
+        u.setFullName("Updated Name");
+        assertTrue(repo.update(u));
+    }
+
+    // update — setUpdateParams null createdAt branch
+    @Test
+    @DisplayName("update: null createdAt ile güncelleme")
+    void testUpdateWithNullCreatedAt() {
+        User u = makeUser("nullupdate");
+        u.setCreatedAt(null);
+        repo.save(u);
+        u.setFullName("Updated");
+        assertTrue(repo.update(u));
+    }
+
+    // findByUsername exception — bağlantı kapalıyken çağrı
+    @Test
+    @DisplayName("findByUsername: kapalı bağlantı exception")
+    void testFindByUsernameException() throws Exception {
+        conn.close();
+        assertThrows(RepositoryException.class, () -> repo.findByUsername("test"));
+    }
 }

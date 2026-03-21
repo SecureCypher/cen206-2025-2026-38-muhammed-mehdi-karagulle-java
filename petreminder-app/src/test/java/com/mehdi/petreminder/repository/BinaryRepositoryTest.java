@@ -195,4 +195,54 @@ class BinaryRepositoryTest {
         assertEquals("Besleme", found.get().getReminderType());
         remRepo.close();
     }
+
+    // findAll: dosya non-List obje içeriyorsa bos liste dönmeli — obj instanceof List = false branch
+    @Test
+    @DisplayName("findAll: non-List serialized object boş liste döner")
+    void testFindAllNonListObject() throws Exception {
+        BinaryRepository<Pet> repo2 = new BinaryRepository<>(tempDir.toString(), "nonlist_test");
+        // Dosyaya List olmayan bir Object yaz
+        java.io.File f = new java.io.File(repo2.getFilePath());
+        try (java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(
+                new java.io.FileOutputStream(f))) {
+            oos.writeObject("This is not a List");
+        }
+        java.util.List<Pet> result = repo2.findAll();
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        repo2.close();
+    }
+
+    // Entity whose getId returns non-Integer (String) — covers initNextId/getEntityId `idObj instanceof Integer = false`
+    public static class StringIdEntity implements java.io.Serializable {
+        private String id = "abc";
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+    }
+
+    @Test
+    @DisplayName("initNextId/getEntityId: non-Integer getId branch")
+    void testNonIntegerGetId() {
+        BinaryRepository<StringIdEntity> strRepo =
+            new BinaryRepository<>(tempDir.toString(), "strid_test");
+        StringIdEntity entity = new StringIdEntity();
+        // save çağrılır — setId(int) bulunamaz, catch'e düşer (setEntityId catch branch)
+        assertDoesNotThrow(() -> strRepo.save(entity));
+        assertEquals(1, strRepo.count());
+        // findById — getEntityId non-Integer getId döner, -1 döner, 1 != -1 → empty
+        assertTrue(strRepo.findById(1).isEmpty());
+        // update — getEntityId -1 döner, ama save edilen entity'nin ID'si de -1 → eşleşir
+        // Bu aslında true döner çünkü -1 == -1
+        assertDoesNotThrow(() -> strRepo.update(entity));
+        // delete -1 ile — getEntityId -1 döner, eşleşir
+        assertDoesNotThrow(() -> strRepo.delete(-1));
+        // initNextId — constructor'da çağrılır, data ile tekrar oluştur
+        // getId non-Integer döner, idObj instanceof Integer = false → maxId güncellenmez
+        BinaryRepository<StringIdEntity> strRepo2 =
+            new BinaryRepository<>(tempDir.toString(), "strid_test");
+        // initNextId: tüm entity'ler var ama maxId güncellenemez (non-Integer)
+        assertNotNull(strRepo2);
+        strRepo.close();
+        strRepo2.close();
+    }
 }

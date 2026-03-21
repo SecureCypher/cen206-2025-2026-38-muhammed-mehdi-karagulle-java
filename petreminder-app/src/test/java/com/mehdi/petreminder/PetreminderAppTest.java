@@ -223,4 +223,5 @@ class petreminderAppTest {
             petreminderApp.startConsole(new String[]{})
         );
     }
+
 }

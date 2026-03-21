@@ -185,4 +185,50 @@ class MedicalRecordSqliteRepositoryTest {
         int id = repo.save(r);
         assertTrue(id > 0);
     }
+
+
+    @Test
+    @DisplayName("null next_check_date: mapRow branch")
+    void testNullNextCheckDateInMapRow() {
+        MedicalRecord r = makeRecord(1, "Rex");
+        r.setNextCheckDate(null);
+        int id = repo.save(r);
+        var found = repo.findById(id);
+        assertTrue(found.isPresent());
+        assertNull(found.get().getNextCheckDate());
+    }
+
+    // update — setUpdateParams tam coverage
+    @Test
+    @DisplayName("update: tam alan güncelleme")
+    void testFullUpdate() {
+        MedicalRecord r = makeRecord(1, "Rex");
+        r.setTreatment("Antibiyotik");
+        r.setNotes("İyileşiyor");
+        r.setVaccineName("Kuduz");
+        r.setCost(500.0);
+        r.setNextCheckDate(LocalDate.of(2027, 6, 1));
+        repo.save(r);
+        r.setDiagnosis("Güncellenmiş");
+        assertTrue(repo.update(r));
+    }
+
+    // update — null nextCheckDate setUpdateParams branch
+    @Test
+    @DisplayName("update: null next_check_date ile güncelleme")
+    void testUpdateWithNullNextCheckDate() {
+        MedicalRecord r = makeRecord(1, "Rex");
+        r.setNextCheckDate(null);
+        repo.save(r);
+        r.setDiagnosis("Updated");
+        assertTrue(repo.update(r));
+    }
+
+    // findByPetId exception — bağlantı kapalıyken çağrı
+    @Test
+    @DisplayName("findByPetId: kapalı bağlantı exception")
+    void testFindByPetIdException() throws Exception {
+        conn.close();
+        assertThrows(RepositoryException.class, () -> repo.findByPetId(1));
+    }
 }
