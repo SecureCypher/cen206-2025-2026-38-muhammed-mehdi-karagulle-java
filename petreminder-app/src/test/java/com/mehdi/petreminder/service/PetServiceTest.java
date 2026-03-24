@@ -177,4 +177,50 @@ class PetServiceTest {
         assertDoesNotThrow(() -> service.close());
         verify(mockRepo).close();
     }
+
+    // Varsayılan yapıcı coverage
+    @Test @DisplayName("Varsayılan yapıcı")
+    void testDefaultConstructor() {
+        assertDoesNotThrow(() -> new PetService());
+    }
+
+    // filterBySpecies null sorgu — tüm listeyi döndürmeli
+    @Test @DisplayName("filterBySpecies: null tümünü döner")
+    void testFilterBySpeciesNull() {
+        List<Pet> all = List.of(new Dog(1, "Rex", null, 1));
+        when(mockRepo.findAll()).thenReturn(all);
+        assertEquals(1, service.filterBySpecies(null).size());
+    }
+
+    // addPet null birthDate ile geçerli — exception atmamalı
+    @Test @DisplayName("addPet: null birthDate başarılı")
+    void testAddPetNullBirthDate() {
+        Dog dog = new Dog(0, "Rex", null, 1);
+        when(mockRepo.save(dog)).thenReturn(1);
+        Pet result = service.addPet(dog);
+        assertNotNull(result);
+    }
+
+    // validatePet name null — getName()==null branch coverage
+    @Test @DisplayName("addPet: null name fırlatır ServiceException")
+    void testAddPetNullName() {
+        Dog dog = new Dog(0, null, null, 1);
+        assertThrows(ServiceException.class, () -> service.addPet(dog));
+    }
+
+    // filterBySpecies sadece whitespace — trim().isEmpty() branch coverage
+    @Test @DisplayName("filterBySpecies: sadece boşluk tümünü döner")
+    void testFilterBySpeciesWhitespace() {
+        List<Pet> all = List.of(new Dog(1, "Rex", null, 1));
+        when(mockRepo.findAll()).thenReturn(all);
+        assertEquals(1, service.filterBySpecies("   ").size());
+    }
+
+    // searchByName sadece whitespace — trim().isEmpty() branch coverage
+    @Test @DisplayName("searchByName: sadece boşluk tümünü döner")
+    void testSearchByNameWhitespace() {
+        List<Pet> all = List.of(new Dog(1, "Rex", null, 1));
+        when(mockRepo.findAll()).thenReturn(all);
+        assertEquals(1, service.searchByName("   ").size());
+    }
 }

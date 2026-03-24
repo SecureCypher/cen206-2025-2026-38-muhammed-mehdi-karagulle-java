@@ -327,6 +327,13 @@ class ReminderModelTest {
         assertTrue(grooming.getSummary().contains("Ali"));
     }
 
+    // Groomer null ise getSummary groomer bilgisi içermemeli — branch coverage
+    @Test void testGrGetSummaryNullGroomer() {
+        grooming.setGroomerName(null);
+        String summary = grooming.getSummary();
+        assertFalse(summary.contains(" - "));
+    }
+
     @Test void testGrToString() { assertTrue(grooming.toString().contains("Tiras")); }
 
     @Test void testGrFullConstructor() {

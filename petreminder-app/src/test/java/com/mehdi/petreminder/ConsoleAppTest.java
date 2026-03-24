@@ -235,4 +235,20 @@ class ConsoleAppTest {
         ConsoleApp app = new ConsoleApp(sc);
         assertDoesNotThrow(app::start);
     }
+
+    // readInput exception catch branch — scanner kapatıldıktan sonra okuma
+    @Test void testReadInputException() {
+        Scanner sc = new Scanner("test\n");
+        sc.close(); // scanner'ı kapat, readInput'ta exception oluşsun
+        ConsoleApp app = new ConsoleApp(sc);
+        // exception yakalanır ve "" döner
+        assertEquals("", app.readInput());
+    }
+
+    // showMainMenu direkt çağrı — running false ise döngüye girmez
+    @Test void testShowMainMenuNotRunning() {
+        ConsoleApp app = new ConsoleApp();
+        // running false, döngüye girmemeli
+        assertDoesNotThrow(app::showMainMenu);
+    }
 }
