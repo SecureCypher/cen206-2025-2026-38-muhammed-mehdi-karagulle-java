@@ -157,6 +157,20 @@
     </dependency>
 
     <!-- ═══════════════════════════════════════════════
+         Console UI: JLine 3 for raw key inputs (Up/Down/Tab)
+         ═══════════════════════════════════════════════ -->
+    <dependency>
+      <groupId>org.jline</groupId>
+      <artifactId>jline-terminal</artifactId>
+      <version>3.25.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jline</groupId>
+      <artifactId>jline-terminal-jansi</artifactId>
+      <version>3.25.1</version>
+    </dependency>
+    
+    <!-- ═══════════════════════════════════════════════
          Storage Layer (PDF LO.6 zorunluluğu)
          ═══════════════════════════════════════════════ -->
     <!-- SQLite: org.xerial:sqlite-jdbc (PDF gereksinimi) -->

@@ -12,6 +12,9 @@ import com.mehdi.petreminder.service.PetService;
 import com.mehdi.petreminder.service.ReminderService;
 import com.mehdi.petreminder.service.ServiceException;
 
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
@@ -47,12 +50,16 @@ public class ConsoleApp {
     /** @brief MedicalRecordService instance. */
     private MedicalRecordService medicalRecordService;
 
+    /** @brief Interactive Terminal for menus. */
+    private Terminal terminal;
+
     /**
      * @brief ConsoleApp method.
      */
     public ConsoleApp() {
         this.scanner = new Scanner(System.in);
         this.running = false;
+        initTerminal();
         initServices();
     }
 
@@ -63,6 +70,16 @@ public class ConsoleApp {
         this.scanner = scanner;
         this.running = false;
         initServices();
+    }
+
+    private void initTerminal() {
+        if (System.console() != null) {
+            try {
+                this.terminal = TerminalBuilder.builder().system(true).build();
+            } catch (Exception e) {
+                this.terminal = null;
+            }
+        }
     }
 
     /**
@@ -92,8 +109,11 @@ public class ConsoleApp {
      */
     public void showMainMenu() {
         while (running) {
-            printMainMenu();
-            String choice = readInput();
+            String choice = selectMenuOption(
+                "\n==========================================\n   PET CARE REMINDER SYSTEM - MAIN MENU  \n==========================================",
+                new String[]{"Pets", "Reminders", "Vet Appointments", "Medical Records", "Settings (Storage: " + StorageConfig.getActiveBackend().getDisplayName() + ")", "Exit"},
+                new String[]{"1", "2", "3", "4", "5", "0"}
+            );
             handleMainMenuChoice(choice);
         }
     }
@@ -109,7 +129,7 @@ public class ConsoleApp {
         System.out.println("  [2] Reminders");
         System.out.println("  [3] Vet Appointments");
         System.out.println("  [4] Medical Records");
-        System.out.println("  [5] Settings (Storage: " + StorageConfig.getActiveBackend().getDisplayName() + ")");
+        System.out.println("  [5] Settings");
         System.out.println("  [0] Exit");
         System.out.println("==========================================");
         System.out.print("Your choice: ");
@@ -132,6 +152,74 @@ public class ConsoleApp {
         }
     }
 
+    /**
+     * @brief selectMenuOption method.
+     */
+    private String selectMenuOption(String title, String[] options, String[] returnValues) {
+        if (terminal == null) {
+            System.out.println(title);
+            for (int i = 0; i < options.length; i++) {
+                System.out.println("  [" + returnValues[i] + "] " + options[i]);
+            }
+            System.out.print("Your choice: ");
+            return readInput();
+        }
+
+        try {
+            terminal.enterRawMode();
+            int selectedIndex = 0;
+            boolean firstDraw = true;
+            
+            while (running) {
+                if (!firstDraw) {
+                    System.out.print("\033[" + (options.length + 2) + "A");
+                }
+                firstDraw = false;
+                
+                System.out.println(title);
+                for (int i = 0; i < options.length; i++) {
+                    if (i == selectedIndex) {
+                        System.out.println("\033[2K\r > [" + returnValues[i] + "] " + options[i]);
+                    } else {
+                        System.out.println("\033[2K\r   [" + returnValues[i] + "] " + options[i]);
+                    }
+                }
+                System.out.print("\033[2K\r (Up/Down/Tab to navigate, Enter to select)");
+                System.out.flush();
+
+                int c = terminal.reader().read();
+                if (c == 9) { // Tab
+                    selectedIndex = (selectedIndex + 1) % options.length;
+                } else if (c == 13 || c == 10) { // Enter
+                    System.out.println();
+                    terminal.echo(true); // Restore echo before returning
+                    return returnValues[selectedIndex];
+                } else if (c == 27) { // ESC sequence (Arrow keys)
+                    int next1 = terminal.reader().read(100);
+                    int next2 = terminal.reader().read(100);
+                    if (next1 == 91) { // '['
+                        if (next2 == 65) { // Up
+                            selectedIndex = (selectedIndex - 1 + options.length) % options.length;
+                        } else if (next2 == 66) { // Down
+                            selectedIndex = (selectedIndex + 1) % options.length;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // fallback gracefully
+        } finally {
+            try { terminal.echo(true); } catch(Exception ignored) {}
+        }
+        
+        System.out.println(title);
+        for (int i = 0; i < options.length; i++) {
+            System.out.println("  [" + returnValues[i] + "] " + options[i]);
+        }
+        System.out.print("Your choice: ");
+        return readInput();
+    }
+
     // ==========================================
     // PETS MENU
     // ==========================================
@@ -140,14 +228,11 @@ public class ConsoleApp {
      */
     public void showPetsMenu() {
         while (running) {
-            System.out.println("\n--- PETS ---");
-            System.out.println("  [1] List All Pets");
-            System.out.println("  [2] Add New Pet");
-            System.out.println("  [3] Edit Pet");
-            System.out.println("  [4] Delete Pet");
-            System.out.println("  [0] Back to Main Menu");
-            System.out.print("Your choice: ");
-            String choice = readInput();
+            String choice = selectMenuOption(
+                "\n--- PETS ---",
+                new String[]{"List All Pets", "Add New Pet", "Edit Pet", "Delete Pet", "Back to Main Menu"},
+                new String[]{"1", "2", "3", "4", "0"}
+            );
 
             switch (choice) {
                 case "1": listAllPets(); break;
@@ -309,14 +394,11 @@ public class ConsoleApp {
      */
     public void showRemindersMenu() {
         while (running) {
-            System.out.println("\n--- REMINDERS ---");
-            System.out.println("  [1] List All Pending Reminders");
-            System.out.println("  [2] Add New Reminder");
-            System.out.println("  [3] Mark Reminder as Completed");
-            System.out.println("  [4] Delete Reminder");
-            System.out.println("  [0] Back to Main Menu");
-            System.out.print("Your choice: ");
-            String choice = readInput();
+            String choice = selectMenuOption(
+                "\n--- REMINDERS ---",
+                new String[]{"List All Pending Reminders", "Add New Reminder", "Mark Reminder as Completed", "Delete Reminder", "Back to Main Menu"},
+                new String[]{"1", "2", "3", "4", "0"}
+            );
 
             switch (choice) {
                 case "1": listPendingReminders(); break;
@@ -469,12 +551,11 @@ public class ConsoleApp {
      */
     public void showVetMenu() {
         while (running) {
-            System.out.println("\n--- VET APPOINTMENTS ---");
-            System.out.println("  [1] List Vet Appointments");
-            System.out.println("  [2] Add New Appointment");
-            System.out.println("  [0] Back to Main Menu");
-            System.out.print("Your choice: ");
-            String choice = readInput();
+            String choice = selectMenuOption(
+                "\n--- VET APPOINTMENTS ---",
+                new String[]{"List Vet Appointments", "Add New Appointment", "Back to Main Menu"},
+                new String[]{"1", "2", "0"}
+            );
 
             switch (choice) {
                 case "1": listVetAppointments(); break;
@@ -548,12 +629,11 @@ public class ConsoleApp {
      */
     public void showMedicalMenu() {
         while (running) {
-            System.out.println("\n--- MEDICAL RECORDS ---");
-            System.out.println("  [1] List Records");
-            System.out.println("  [2] Add New Record");
-            System.out.println("  [0] Back to Main Menu");
-            System.out.print("Your choice: ");
-            String choice = readInput();
+            String choice = selectMenuOption(
+                "\n--- MEDICAL RECORDS ---",
+                new String[]{"List Records", "Add New Record", "Back to Main Menu"},
+                new String[]{"1", "2", "0"}
+            );
 
             switch (choice) {
                 case "1": listMedicalRecords(); break;
@@ -625,14 +705,11 @@ public class ConsoleApp {
      * @brief showSettingsMenu method.
      */
     public void showSettingsMenu() {
-        System.out.println("\n--- SETTINGS ---");
-        System.out.println("Current Storage: " + StorageConfig.getActiveBackend().getDisplayName());
-        System.out.println("  [1] Binary File I/O (.bin)");
-        System.out.println("  [2] SQLite (.db)");
-        System.out.println("  [3] MySQL (Docker required)");
-        System.out.println("  [0] Back");
-        System.out.print("Your choice: ");
-        String choice = readInput();
+        String choice = selectMenuOption(
+            "\n--- SETTINGS ---\nCurrent Storage: " + StorageConfig.getActiveBackend().getDisplayName(),
+            new String[]{"Binary File I/O (.bin)", "SQLite (.db)", "MySQL (Docker required)", "Back"},
+            new String[]{"1", "2", "3", "0"}
+        );
         handleStorageSwitch(choice);
     }
 
