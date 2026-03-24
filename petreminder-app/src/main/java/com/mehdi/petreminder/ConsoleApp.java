@@ -1,77 +1,94 @@
 /**
  * @file ConsoleApp.java
- * @brief Console uygulaması ana döngüsü ve menü yöneticisi.
- * @details PDF zorunluluğu: Console-based menu with keyboard navigation.
- *          Tüm CRUD işlemleri için menü ekranları buradan başlatılır.
- */
-/**
- * Member documentation.
+ * @brief Console application main loop.
  */
 package com.mehdi.petreminder;
 
 import com.mehdi.petreminder.config.StorageConfig;
 import com.mehdi.petreminder.config.StorageType;
+import com.mehdi.petreminder.model.*;
+import com.mehdi.petreminder.service.MedicalRecordService;
+import com.mehdi.petreminder.service.PetService;
+import com.mehdi.petreminder.service.ReminderService;
+import com.mehdi.petreminder.service.ServiceException;
 
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Scanner;
 
 /**
  * @class ConsoleApp
- * @brief Konsol uygulaması — ana menü döngüsü.
- * @details PDF gereksinimi:
- *          - Console UI: Keyboard-navigable menus (arrow keys / Tab)
- *          - Settings screen: storage backend değiştirme
- *          - Separate app layer (calls lib/service layer)
- *          OOP Encapsulation: scanner private.
- *          OOP Abstraction: her menü ekranı ayrı metod.
- * @author Muhammed Mehdi Karagülle
- * @author Ibrahim Demirci
- * @author Zumre Uykun
- * @version 1.0
+ * @brief Console application main loop and menu manager.
+ * @details Fully functional CRUD CLI mode connecting to Service layer.
  */
 public class ConsoleApp {
 
-    /** @brief Sınıf logger'ı. */
-    private static final Logger logger =
-        (Logger) LoggerFactory.getLogger(ConsoleApp.class);
-
-    /** @brief Klavye girişi okuyucu. */
+    /** @brief Logger for ConsoleApp. */
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(ConsoleApp.class);
+    
+    /** @brief Console input scanner. */
     private final Scanner scanner;
-
-    /** @brief Çalışıyor mu bayrağı. */
+    
+    /** @brief Execution flag. */
     private boolean running;
 
+    /** @brief PetService instance. */
+    private PetService petService;
+    
+    /** @brief ReminderService instance. */
+    private ReminderService reminderService;
+    
+    /** @brief MedicalRecordService instance. */
+    private MedicalRecordService medicalRecordService;
+
     /**
-     * @brief Varsayılan yapıcı — scanner başlatılır.
+     * @brief ConsoleApp method.
      */
     public ConsoleApp() {
         this.scanner = new Scanner(System.in);
         this.running = false;
+        initServices();
     }
 
     /**
-     * @brief Test amaçlı yapıcı — dışarıdan scanner verilir.
-     * @param scanner Test scanner'ı
+     * @brief ConsoleApp method.
      */
     public ConsoleApp(Scanner scanner) {
         this.scanner = scanner;
         this.running = false;
+        initServices();
     }
 
     /**
-     * @brief Konsol uygulamasını başlatır, ana menü döngüsünü çalıştırır.
-     * @details running=true yaparak döngüye girer; çıkış seçilince durur.
+     * @brief initServices method.
+     */
+    private void initServices() {
+        try {
+            this.petService = new PetService();
+            this.reminderService = new ReminderService();
+            this.medicalRecordService = new MedicalRecordService();
+        } catch (Exception e) {
+            logger.error("Failed to initialize services Component: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * @brief start method.
      */
     public void start() {
         this.running = true;
-        logger.info("ConsoleApp baslatildi.");
+        logger.info("ConsoleApp started.");
         showMainMenu();
     }
 
     /**
-     * @brief Ana menüyü gösterir ve seçim döngüsünü yönetir.
+     * @brief showMainMenu method.
      */
     public void showMainMenu() {
         while (running) {
@@ -82,163 +99,583 @@ public class ConsoleApp {
     }
 
     /**
-     * @brief Ana menüyü konsola yazdırır.
+     * @brief printMainMenu method.
      */
     public void printMainMenu() {
-        System.out.println();
+        System.out.println("\n==========================================");
+        System.out.println("   PET CARE REMINDER SYSTEM - MAIN MENU  ");
         System.out.println("==========================================");
-        System.out.println("   PET CARE REMINDER SYSTEM - ANA MENU  ");
+        System.out.println("  [1] Pets");
+        System.out.println("  [2] Reminders");
+        System.out.println("  [3] Vet Appointments");
+        System.out.println("  [4] Medical Records");
+        System.out.println("  [5] Settings (Storage: " + StorageConfig.getActiveBackend().getDisplayName() + ")");
+        System.out.println("  [0] Exit");
         System.out.println("==========================================");
-        System.out.println("  [1] Evcil Hayvanlar");
-        System.out.println("  [2] Hatirlaticilar");
-        System.out.println("  [3] Veteriner Randevulari");
-        System.out.println("  [4] Saglik Kayitlari");
-        System.out.println("  [5] Ayarlar (Storage: "
-            + StorageConfig.getActiveBackend().getDisplayName() + ")");
-        System.out.println("  [0] Cikis");
-        System.out.println("==========================================");
-        System.out.print("Seciminiz: ");
+        System.out.print("Your choice: ");
     }
 
     /**
-     * @brief Ana menü seçimini işler.
-     * @param choice Kullanıcı seçimi
+     * @brief handleMainMenuChoice method.
      */
     public void handleMainMenuChoice(String choice) {
-        if (choice == null) {
-            return;
-        }
+        if (choice == null) return;
         switch (choice.trim()) {
             case "1": showPetsMenu(); break;
             case "2": showRemindersMenu(); break;
             case "3": showVetMenu(); break;
             case "4": showMedicalMenu(); break;
-            case "5": showSettingsMenu(); break;
+            case "5": showSettingsMenu(); initServices(); break; // re-init on storage change
             case "0": exitApp(); break;
             default:
-                System.out.println("Gecersiz secim. Tekrar deneyin.");
-                logger.warn("Gecersiz ana menu secimi: {}", choice);
+                System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    // ==========================================
+    // PETS MENU
+    // ==========================================
+    /**
+     * @brief showPetsMenu method.
+     */
+    public void showPetsMenu() {
+        while (running) {
+            System.out.println("\n--- PETS ---");
+            System.out.println("  [1] List All Pets");
+            System.out.println("  [2] Add New Pet");
+            System.out.println("  [3] Edit Pet");
+            System.out.println("  [4] Delete Pet");
+            System.out.println("  [0] Back to Main Menu");
+            System.out.print("Your choice: ");
+            String choice = readInput();
+
+            switch (choice) {
+                case "1": listAllPets(); break;
+                case "2": addNewPet(); break;
+                case "3": editPet(); break;
+                case "4": deletePet(); break;
+                case "0": return;
+                default: System.out.println("Invalid choice.");
+            }
         }
     }
 
     /**
-     * @brief Evcil hayvanlar menüsünü gösterir.
+     * @brief listAllPets method.
      */
-    public void showPetsMenu() {
-        System.out.println("\n--- EVCIL HAYVANLAR ---");
-        System.out.println("  [1] Tum Hayvanlari Listele");
-        System.out.println("  [2] Yeni Hayvan Ekle");
-        System.out.println("  [3] Hayvan Duzenle");
-        System.out.println("  [4] Hayvan Sil");
-        System.out.println("  [0] Geri");
-        System.out.print("Seciminiz: ");
-        String choice = readInput();
-        System.out.println("[" + choice + "] secildi. (Servis katmani hazirlanıyor...)");
+    private void listAllPets() {
+        System.out.println("\n--- LIST OF PETS ---");
+        try {
+            List<Pet> pets = petService.getAllPets();
+            if (pets.isEmpty()) {
+                System.out.println("No pets found. Please add a pet first.");
+                return;
+            }
+            for (Pet p : pets) {
+                System.out.println(String.format("ID: %d | Name: %s | Species: %s | Age: %s",
+                    p.getId(), p.getName(), p.getSpecies(), p.getAgeString()));
+            }
+        } catch (Exception e) {
+            System.out.println("Error listing pets: " + e.getMessage());
+        }
     }
 
     /**
-     * @brief Hatırlatıcılar menüsünü gösterir.
+     * @brief addNewPet method.
+     */
+    private void addNewPet() {
+        System.out.println("\n--- ADD NEW PET ---");
+        
+        System.out.print("Species (1: Dog, 2: Cat, 3: Bird): ");
+        String typeChoice = readInput();
+        
+        System.out.print("Name: ");
+        String name = readInput();
+        if (name.isEmpty()) {
+            System.out.println("Error: Name cannot be empty.");
+            return;
+        }
+
+        System.out.print("Birth Date (YYYY-MM-DD): ");
+        LocalDate birthDate = readDateInput();
+        if (birthDate == null) return;
+
+        System.out.print("Gender (Male/Female): ");
+        String gender = readInput();
+
+        System.out.print("Weight (kg): ");
+        double weight = readDoubleInput();
+        if (weight <= 0) return;
+
+        System.out.print("Breed: ");
+        String breed = readInput();
+
+        Pet newPet = null;
+        try {
+            if ("1".equals(typeChoice)) {
+                Dog dog = new Dog(0, name, birthDate, 1);
+                dog.setGender(gender);
+                dog.setWeight(weight);
+                dog.setBreed(breed);
+                System.out.print("Is trained? (true/false): ");
+                dog.setTrained(Boolean.parseBoolean(readInput()));
+                newPet = dog;
+            } else if ("2".equals(typeChoice)) {
+                Cat cat = new Cat(0, name, birthDate, 1);
+                cat.setGender(gender);
+                cat.setWeight(weight);
+                cat.setBreed(breed);
+                System.out.print("Is indoor? (true/false): ");
+                cat.setIndoor(Boolean.parseBoolean(readInput()));
+                newPet = cat;
+            } else if ("3".equals(typeChoice)) {
+                Bird bird = new Bird(0, name, birthDate, 1);
+                bird.setGender(gender);
+                bird.setWeight(weight);
+                bird.setBirdType(breed);
+                System.out.print("Can talk? (true/false): ");
+                bird.setCanTalk(Boolean.parseBoolean(readInput()));
+                newPet = bird;
+            } else {
+                System.out.println("Invalid species choice.");
+                return;
+            }
+
+            petService.addPet(newPet);
+            System.out.println("Pet '" + name + "' added successfully.");
+        } catch (ServiceException e) {
+            System.out.println("Failed to add pet: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @brief editPet method.
+     */
+    private void editPet() {
+        listAllPets();
+        System.out.print("\nEnter ID of pet to edit (or 0 to cancel): ");
+        int id = readIntInput();
+        if (id <= 0) return;
+
+        try {
+            Pet pet = petService.getPetById(id);
+            System.out.println("Editing Pet: " + pet.getName());
+            
+            System.out.print("New Weight (" + pet.getWeight() + "): ");
+            String weightStr = readInput();
+            if (!weightStr.isEmpty()) {
+                pet.setWeight(Double.parseDouble(weightStr));
+            }
+
+            System.out.print("New Notes: ");
+            String notes = readInput();
+            if (!notes.isEmpty()) {
+                pet.setNotes(notes);
+            }
+
+            petService.updatePet(pet);
+            System.out.println("Pet updated successfully.");
+        } catch (ServiceException | NumberFormatException e) {
+            System.out.println("Failed to update pet: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @brief deletePet method.
+     */
+    private void deletePet() {
+        listAllPets();
+        System.out.print("\nEnter ID of pet to delete (or 0 to cancel): ");
+        int id = readIntInput();
+        if (id <= 0) return;
+
+        try {
+            Pet p = petService.getPetById(id);
+            System.out.print("Are you sure you want to delete '" + p.getName() + "'? (y/n): ");
+            if ("y".equalsIgnoreCase(readInput())) {
+                petService.deletePet(id);
+                System.out.println("Pet deleted successfully.");
+            }
+        } catch (ServiceException e) {
+            System.out.println("Failed to delete pet: " + e.getMessage());
+        }
+    }
+
+    // ==========================================
+    // REMINDERS MENU
+    // ==========================================
+    /**
+     * @brief showRemindersMenu method.
      */
     public void showRemindersMenu() {
-        System.out.println("\n--- HATIRLATICILAR ---");
-        System.out.println("  [1] Tum Hatirlaticilari Listele");
-        System.out.println("  [2] Yeni Hatirlatici Ekle");
-        System.out.println("  [3] Hatirlatici Tamamla");
-        System.out.println("  [4] Hatirlatici Sil");
-        System.out.println("  [0] Geri");
-        System.out.print("Seciminiz: ");
-        String choice = readInput();
-        System.out.println("[" + choice + "] secildi.");
+        while (running) {
+            System.out.println("\n--- REMINDERS ---");
+            System.out.println("  [1] List All Pending Reminders");
+            System.out.println("  [2] Add New Reminder");
+            System.out.println("  [3] Mark Reminder as Completed");
+            System.out.println("  [4] Delete Reminder");
+            System.out.println("  [0] Back to Main Menu");
+            System.out.print("Your choice: ");
+            String choice = readInput();
+
+            switch (choice) {
+                case "1": listPendingReminders(); break;
+                case "2": addNewReminder(); break;
+                case "3": markReminderCompleted(); break;
+                case "4": deleteReminder(); break;
+                case "0": return;
+                default: System.out.println("Invalid choice.");
+            }
+        }
     }
 
     /**
-     * @brief Veteriner menüsünü gösterir.
+     * @brief listPendingReminders method.
+     */
+    private void listPendingReminders() {
+        System.out.println("\n--- PENDING REMINDERS ---");
+        try {
+            List<Reminder> reminders = reminderService.getPendingReminders();
+            if (reminders.isEmpty()) {
+                System.out.println("No pending reminders found.");
+                return;
+            }
+            for (Reminder r : reminders) {
+                System.out.println(String.format("ID: %d | Pet ID: %d | Time: %s | Desc: %s",
+                    r.getId(), r.getPetId(), r.getScheduledTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), r.getDescription()));
+            }
+        } catch (Exception e) {
+            System.out.println("Error listing reminders: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @brief addNewReminder method.
+     */
+    private void addNewReminder() {
+        System.out.println("\n--- ADD NEW REMINDER ---");
+        System.out.print("Enter Pet ID for this reminder: ");
+        int petId = readIntInput();
+        if (petId <= 0) return;
+
+        // Verify pet exists
+        try {
+            petService.getPetById(petId);
+        } catch (ServiceException e) {
+            System.out.println("Error: Pet not found.");
+            return;
+        }
+
+        System.out.print("Reminder Type (1: Feeding, 2: Medication, 3: Grooming, 4: Exercise): ");
+        String typeChoice = readInput();
+
+        System.out.print("Description: ");
+        String desc = readInput();
+        if (desc.isEmpty()) {
+            System.out.println("Error: Description cannot be empty.");
+            return;
+        }
+
+        System.out.print("Date and Time (YYYY-MM-DD HH:MM): ");
+        LocalDateTime time = readDateTimeInput();
+        if (time == null) return;
+
+        Reminder newReminder = null;
+        try {
+            switch (typeChoice) {
+                case "1":
+                    FeedingReminder fr = new FeedingReminder(0, petId, "Unknown", time, "Unknown", 0);
+                    fr.setDescription(desc);
+                    System.out.print("Food Type: ");
+                    fr.setFoodType(readInput());
+                    System.out.print("Portion (grams): ");
+                    fr.setPortionGrams((int)readDoubleInput());
+                    newReminder = fr;
+                    break;
+                case "2":
+                    MedicationReminder mr = new MedicationReminder(0, petId, "Unknown", time, "Unknown", 0.0, "Unknown");
+                    mr.setDescription(desc);
+                    System.out.print("Medication Name: ");
+                    mr.setMedicationName(readInput());
+                    System.out.print("Dosage: ");
+                    mr.setDosage(readDoubleInput());
+                    newReminder = mr;
+                    break;
+                case "3":
+                    GroomingReminder gr = new GroomingReminder(0, petId, "Unknown", time, "Unknown", false);
+                    gr.setDescription(desc);
+                    System.out.print("Professional grooming? (true/false): ");
+                    gr.setProfessional(Boolean.parseBoolean(readInput()));
+                    newReminder = gr;
+                    break;
+                case "4":
+                    ExerciseReminder er = new ExerciseReminder(0, petId, "Unknown", time, "Unknown", 0);
+                    er.setDescription(desc);
+                    System.out.print("Duration (minutes): ");
+                    er.setDurationMinutes((int)readDoubleInput());
+                    newReminder = er;
+                    break;
+                default:
+                    System.out.println("Invalid type choice.");
+                    return;
+            }
+
+            reminderService.addReminder(newReminder);
+            System.out.println("Reminder added successfully.");
+        } catch (ServiceException e) {
+            System.out.println("Failed to add reminder: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @brief markReminderCompleted method.
+     */
+    private void markReminderCompleted() {
+        listPendingReminders();
+        System.out.print("\nEnter ID of reminder to complete (or 0 to cancel): ");
+        int id = readIntInput();
+        if (id <= 0) return;
+
+        try {
+            reminderService.markCompleted(id);
+            System.out.println("Reminder marked as completed.");
+        } catch (ServiceException e) {
+            System.out.println("Failed to update reminder: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @brief deleteReminder method.
+     */
+    private void deleteReminder() {
+        listPendingReminders();
+        System.out.print("\nEnter ID of reminder to delete (or 0 to cancel): ");
+        int id = readIntInput();
+        if (id <= 0) return;
+
+        try {
+            reminderService.deleteReminder(id);
+            System.out.println("Reminder deleted successfully.");
+        } catch (ServiceException e) {
+            System.out.println("Failed to delete reminder: " + e.getMessage());
+        }
+    }
+
+    // ==========================================
+    // VET APPOINTMENTS MENU
+    // ==========================================
+    /**
+     * @brief showVetMenu method.
      */
     public void showVetMenu() {
-        System.out.println("\n--- VETERINER RANDEVULARI ---");
-        System.out.println("  [1] Randevulari Listele");
-        System.out.println("  [2] Yeni Randevu Ekle");
-        System.out.println("  [0] Geri");
-        System.out.print("Seciminiz: ");
-        String choice = readInput();
-        System.out.println("[" + choice + "] secildi.");
+        while (running) {
+            System.out.println("\n--- VET APPOINTMENTS ---");
+            System.out.println("  [1] List Vet Appointments");
+            System.out.println("  [2] Add New Appointment");
+            System.out.println("  [0] Back to Main Menu");
+            System.out.print("Your choice: ");
+            String choice = readInput();
+
+            switch (choice) {
+                case "1": listVetAppointments(); break;
+                case "2": addVetAppointment(); break;
+                case "0": return;
+                default: System.out.println("Invalid choice.");
+            }
+        }
     }
 
     /**
-     * @brief Sağlık kayıtları menüsünü gösterir.
+     * @brief listVetAppointments method.
+     */
+    private void listVetAppointments() {
+        System.out.println("\n--- VET APPOINTMENTS ---");
+        try {
+            List<Reminder> reminders = reminderService.getPendingReminders();
+            boolean found = false;
+            for (Reminder r : reminders) {
+                if (r instanceof VetAppointment) {
+                    VetAppointment va = (VetAppointment) r;
+                    System.out.println(String.format("ID: %d | Pet ID: %d | Time: %s | Clinic: %s | Reason: %s",
+                        va.getId(), va.getPetId(), va.getScheduledTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), 
+                        va.getClinicName(), va.getReason()));
+                    found = true;
+                }
+            }
+            if (!found) System.out.println("No pending vet appointments found.");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @brief addVetAppointment method.
+     */
+    private void addVetAppointment() {
+        System.out.println("\n--- ADD VET APPOINTMENT ---");
+        System.out.print("Enter Pet ID: ");
+        int petId = readIntInput();
+        if (petId <= 0) return;
+
+        System.out.print("Description: ");
+        String desc = readInput();
+
+        System.out.print("Date and Time (YYYY-MM-DD HH:MM): ");
+        LocalDateTime time = readDateTimeInput();
+        if (time == null) return;
+
+        System.out.print("Clinic Name: ");
+        String clinic = readInput();
+
+        System.out.print("Reason: ");
+        String reason = readInput();
+
+        try {
+            VetAppointment va = new VetAppointment(0, petId, "Unknown", time, "Unknown", clinic, reason);
+            va.setDescription(desc);
+            reminderService.addReminder(va);
+            System.out.println("Vet appointment scheduling successful.");
+        } catch (ServiceException e) {
+            System.out.println("Failed: " + e.getMessage());
+        }
+    }
+
+    // ==========================================
+    // MEDICAL RECORDS MENU
+    // ==========================================
+    /**
+     * @brief showMedicalMenu method.
      */
     public void showMedicalMenu() {
-        System.out.println("\n--- SAGLIK KAYITLARI ---");
-        System.out.println("  [1] Kayitlari Listele");
-        System.out.println("  [2] Yeni Kayit Ekle");
-        System.out.println("  [0] Geri");
-        System.out.print("Seciminiz: ");
-        String choice = readInput();
-        System.out.println("[" + choice + "] secildi.");
+        while (running) {
+            System.out.println("\n--- MEDICAL RECORDS ---");
+            System.out.println("  [1] List Records");
+            System.out.println("  [2] Add New Record");
+            System.out.println("  [0] Back to Main Menu");
+            System.out.print("Your choice: ");
+            String choice = readInput();
+
+            switch (choice) {
+                case "1": listMedicalRecords(); break;
+                case "2": addMedicalRecord(); break;
+                case "0": return;
+                default: System.out.println("Invalid choice.");
+            }
+        }
     }
 
     /**
-     * @brief Ayarlar menüsünü gösterir.
-     * @details PDF zorunluluğu: Runtime storage switching — no restart required.
-     *          [1] Binary  [2] SQLite  [3] MySQL
+     * @brief listMedicalRecords method.
+     */
+    private void listMedicalRecords() {
+        System.out.println("\n--- MEDICAL RECORDS ---");
+        System.out.print("Enter Pet ID (or 0 for all): ");
+        int petId = readIntInput();
+        try {
+            List<MedicalRecord> records = (petId > 0) ? 
+                medicalRecordService.getRecordsByPetId(petId) : medicalRecordService.getAllRecords();
+                
+            if (records.isEmpty()) {
+                System.out.println("No records found.");
+                return;
+            }
+            
+            for (MedicalRecord m : records) {
+                System.out.println(String.format("ID: %d | Pet ID: %d | Date: %s | Diagnosis: %s | Treatment: %s",
+                    m.getId(), m.getPetId(), m.getRecordDate(), m.getDiagnosis(), m.getTreatment()));
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * @brief addMedicalRecord method.
+     */
+    private void addMedicalRecord() {
+        System.out.println("\n--- ADD MEDICAL RECORD ---");
+        System.out.print("Enter Pet ID: ");
+        int petId = readIntInput();
+        if (petId <= 0) return;
+
+        System.out.print("Date (YYYY-MM-DD): ");
+        LocalDate date = readDateInput();
+        if (date == null) return;
+
+        System.out.print("Diagnosis: ");
+        String diagnosis = readInput();
+
+        System.out.print("Treatment: ");
+        String treatment = readInput();
+
+        try {
+            MedicalRecord record = new MedicalRecord(0, petId, "Unknown", date, "Checkup", diagnosis, "Unknown");
+            record.setTreatment(treatment);
+            medicalRecordService.addRecord(record);
+            System.out.println("Medical record added successfully.");
+        } catch (ServiceException e) {
+            System.out.println("Failed: " + e.getMessage());
+        }
+    }
+
+    // ==========================================
+    // SETTINGS MENU
+    // ==========================================
+    /**
+     * @brief showSettingsMenu method.
      */
     public void showSettingsMenu() {
-        System.out.println("\n--- AYARLAR ---");
-        System.out.println("Mevcut Storage: "
-            + StorageConfig.getActiveBackend().getDisplayName());
+        System.out.println("\n--- SETTINGS ---");
+        System.out.println("Current Storage: " + StorageConfig.getActiveBackend().getDisplayName());
         System.out.println("  [1] Binary File I/O (.bin)");
         System.out.println("  [2] SQLite (.db)");
-        System.out.println("  [3] MySQL (Docker gerekli)");
-        System.out.println("  [0] Geri");
-        System.out.print("Seciminiz: ");
+        System.out.println("  [3] MySQL (Docker required)");
+        System.out.println("  [0] Back");
+        System.out.print("Your choice: ");
         String choice = readInput();
         handleStorageSwitch(choice);
     }
 
     /**
-     * @brief Storage backend'ini çalışma zamanında değiştirir.
-     * @details PDF zorunluluğu: User switches from Settings screen at runtime.
-     * @param choice Seçilen backend numarası
+     * @brief handleStorageSwitch method.
      */
     public void handleStorageSwitch(String choice) {
         if (choice == null) return;
         switch (choice.trim()) {
             case "1":
                 StorageConfig.setActiveBackend(StorageType.BINARY);
-                System.out.println("Storage: Binary File I/O secildi.");
-                logger.info("Storage degistirildi: BINARY");
+                System.out.println("Storage switched to: Binary File I/O");
                 break;
             case "2":
                 StorageConfig.setActiveBackend(StorageType.SQLITE);
-                System.out.println("Storage: SQLite secildi.");
-                logger.info("Storage degistirildi: SQLITE");
+                System.out.println("Storage switched to: SQLite");
                 break;
             case "3":
                 StorageConfig.setActiveBackend(StorageType.MYSQL);
-                System.out.println("Storage: MySQL secildi.");
-                System.out.println("NOT: MySQL icin Docker Compose calisir olmali.");
-                logger.info("Storage degistirildi: MYSQL");
+                System.out.println("Storage switched to: MySQL");
+                System.out.println("NOTE: MySQL requires Docker Compose to be running.");
                 break;
             case "0":
                 break;
             default:
-                System.out.println("Gecersiz secim.");
+                System.out.println("Invalid choice.");
         }
     }
 
+    // ==========================================
+    // UTILITIES
+    // ==========================================
     /**
-     * @brief Uygulamadan çıkış yapar.
+     * @brief exitApp method.
      */
     public void exitApp() {
         running = false;
-        System.out.println("\nPet Care Reminder System kapatiliyor...");
-        System.out.println("Gorusmek uzere!");
-        logger.info("Uygulama kullanici tarafindan kapatildi.");
+        System.out.println("\nClosing Pet Care Reminder System...");
+        System.out.println("Goodbye!");
     }
 
     /**
-     * @brief Klavyeden bir satır okur.
-     * @return Kullanıcı girişi (trim edilmiş), okunamazsa boş string
+     * @brief readInput method.
      */
     public String readInput() {
         try {
@@ -246,24 +683,81 @@ public class ConsoleApp {
                 return scanner.nextLine().trim();
             }
         } catch (Exception e) {
-            logger.error("Giris okuma hatasi: {}", e.getMessage());
+            logger.error("Input reading error: {}", e.getMessage());
         }
         return "";
     }
-
+    
+    // Test helper
     /**
-     * @brief Çalışıyor mu getter.
-     * @return running durumu
+     * @brief setScannerSource method.
      */
-    public boolean isRunning() {
-        return running;
+    protected void setScannerSource(String input) {
+        // Only used in tests via reflection
     }
 
     /**
-     * @brief running setter (test için).
-     * @param running Yeni durum
+     * @brief readIntInput method.
      */
-    public void setRunning(boolean running) {
-        this.running = running;
+    private int readIntInput() {
+        try {
+            String input = readInput();
+            return input.isEmpty() ? 0 : Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Please enter a valid number.");
+            return -1;
+        }
     }
+
+    /**
+     * @brief readDoubleInput method.
+     */
+    private double readDoubleInput() {
+        try {
+            String input = readInput();
+            return input.isEmpty() ? 0.0 : Double.parseDouble(input);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Please enter a valid decimal number.");
+            return -1.0;
+        }
+    }
+
+    /**
+     * @brief readDateInput method.
+     */
+    private LocalDate readDateInput() {
+        String input = readInput();
+        try {
+            return LocalDate.parse(input);
+        } catch (DateTimeParseException e) {
+            System.out.println("Error: Invalid date format. Please use YYYY-MM-DD.");
+            return null;
+        }
+    }
+
+    /**
+     * @brief readDateTimeInput method.
+     */
+    private LocalDateTime readDateTimeInput() {
+        String input = readInput();
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            return LocalDateTime.parse(input, formatter);
+        } catch (DateTimeParseException e) {
+            System.out.println("Error: Invalid format. Please use YYYY-MM-DD HH:MM");
+            return null;
+        }
+    }
+
+    /**
+     * @brief isRunning getter.
+     * @return boolean running state
+     */
+    public boolean isRunning() { return running; }
+    
+    /**
+     * @brief setRunning setter.
+     * @param running running state
+     */
+    public void setRunning(boolean running) { this.running = running; }
 }

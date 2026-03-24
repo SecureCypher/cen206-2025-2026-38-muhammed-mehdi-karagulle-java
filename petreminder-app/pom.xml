@@ -15,6 +15,14 @@
   <description>CEN206 Term Project - Pet Care Reminder System</description>
   <inceptionYear>2026</inceptionYear>
 
+  <licenses>
+    <license>
+      <name>GNU Affero General Public License v3.0</name>
+      <url>https://www.gnu.org/licenses/agpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <scm>
     <url>https://github.com/SecureCypher/cen-206-38-mehdi-karagulle-java</url>
   </scm>
@@ -241,6 +249,7 @@
             <exclude>com/mehdi/petreminder/gui/**</exclude>
             <exclude>com/mehdi/petreminder/repository/*MySql*</exclude>
             <exclude>com/mehdi/petreminder/repository/MySqlRepository*</exclude>
+            <exclude>com/mehdi/petreminder/ConsoleApp*</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -305,7 +314,7 @@
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.mehdi.ibrahim.zumre.petreminder.petreminderApp</mainClass>
+                  <mainClass>com.mehdi.petreminder.petreminderApp</mainClass>
                 </transformer>
               </transformers>
               <filters>
