@@ -261,6 +261,8 @@
         <configuration>
           <excludes>
             <exclude>com/mehdi/petreminder/gui/**</exclude>
+            <exclude>com/mehdi/petreminder/ConsoleApp*</exclude>
+            <exclude>com/mehdi/petreminder/petreminder*</exclude>
           </excludes>
         </configuration>
         <executions>

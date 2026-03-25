@@ -1,7 +1,8 @@
 /**
  * @file ConsoleAppTest.java
  * @brief ConsoleApp sınıfı için JUnit 5 test sınıfı.
- * @details 100% coverage hedefi — tüm public metodlar test edilir.
+ * @details Public API ve doğrudan çağrılabilen metodları kapsar.
+ *          while(running) döngüsü running=false iken girmez — sonsuz döngü riski yok.
  */
 package com.mehdi.petreminder;
 
@@ -14,241 +15,296 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @class ConsoleAppTest
- * @brief ConsoleApp test sınıfı.
+ * @brief ConsoleApp public API testleri.
  * @author Muhammed Mehdi Karagülle, Ibrahim Demirci, Zumre Uykun
+ * @version 5.0
  */
 class ConsoleAppTest {
 
+    /** @brief Original System.out. */
     private PrintStream originalOut;
+    /** @brief Original System.in. */
     private InputStream originalIn;
 
-    @BeforeEach void setUp() {
+    /**
+     * @brief Her testten önce output susturulur.
+     */
+    @BeforeEach
+    void setUp() {
         originalOut = System.out;
         originalIn  = System.in;
-        System.setOut(new PrintStream(new ByteArrayOutputStream()));
+        System.setOut(new PrintStream(OutputStream.nullOutputStream()));
+        StorageConfig.setActiveBackend(StorageType.SQLITE);
     }
 
-    @AfterEach void tearDown() {
+    /**
+     * @brief Her testten sonra restore edilir.
+     */
+    @AfterEach
+    void tearDown() {
         System.setOut(originalOut);
         System.setIn(originalIn);
+        StorageConfig.setActiveBackend(StorageType.SQLITE);
     }
 
-    // ── Yapıcı testleri ───────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // YAPILAR & TEMEL DURUM
+    // ═══════════════════════════════════════════════════════════════
 
+    /** @test Varsayılan yapıcı. */
     @Test void testDefaultConstructor() {
-        ConsoleApp app = new ConsoleApp();
-        assertNotNull(app);
-        assertFalse(app.isRunning());
+        assertNotNull(new ConsoleApp());
     }
 
+    /** @test Scanner yapıcısı. */
     @Test void testScannerConstructor() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertNotNull(app);
-        assertFalse(app.isRunning());
+        ConsoleApp a = new ConsoleApp(new Scanner(""));
+        assertNotNull(a);
+        assertFalse(a.isRunning());
     }
 
-    // ── isRunning / setRunning ────────────────────────────────────────
-
+    /** @test setRunning true. */
     @Test void testSetRunningTrue() {
-        ConsoleApp app = new ConsoleApp();
-        app.setRunning(true);
-        assertTrue(app.isRunning());
+        ConsoleApp a = new ConsoleApp();
+        a.setRunning(true);
+        assertTrue(a.isRunning());
     }
 
+    /** @test setRunning false. */
     @Test void testSetRunningFalse() {
-        ConsoleApp app = new ConsoleApp();
-        app.setRunning(false);
-        assertFalse(app.isRunning());
+        ConsoleApp a = new ConsoleApp();
+        a.setRunning(false);
+        assertFalse(a.isRunning());
     }
 
-    // ── readInput() ───────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // readInput()
+    // ═══════════════════════════════════════════════════════════════
 
+    /** @test readInput normal. */
     @Test void testReadInputNormal() {
-        Scanner sc = new Scanner("merhaba\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertEquals("merhaba", app.readInput());
+        ConsoleApp a = new ConsoleApp(new Scanner("merhaba\n"));
+        assertEquals("merhaba", a.readInput());
     }
 
+    /** @test readInput boş satır. */
     @Test void testReadInputEmpty() {
-        Scanner sc = new Scanner("\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertEquals("", app.readInput());
+        ConsoleApp a = new ConsoleApp(new Scanner("\n"));
+        assertEquals("", a.readInput());
     }
 
+    /** @test readInput trim. */
     @Test void testReadInputTrimmed() {
-        Scanner sc = new Scanner("  1  \n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertEquals("1", app.readInput());
+        ConsoleApp a = new ConsoleApp(new Scanner("  abc  \n"));
+        assertEquals("abc", a.readInput());
     }
 
-    @Test void testReadInputNoMoreInput() {
-        Scanner sc = new Scanner("");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertEquals("", app.readInput());
+    /** @test readInput bitti. */
+    @Test void testReadInputFinished() {
+        ConsoleApp a = new ConsoleApp(new Scanner(""));
+        assertEquals("", a.readInput());
     }
 
-    // ── exitApp() ────────────────────────────────────────────────────
+    /** @test readInput exception → boş. */
+    @Test void testReadInputException() {
+        Scanner sc = new Scanner("x\n");
+        sc.close();
+        ConsoleApp a = new ConsoleApp(sc);
+        assertEquals("", a.readInput());
+    }
 
+    // ═══════════════════════════════════════════════════════════════
+    // exitApp()
+    // ═══════════════════════════════════════════════════════════════
+
+    /** @test exitApp → running false. */
     @Test void testExitApp() {
-        ConsoleApp app = new ConsoleApp();
-        app.setRunning(true);
-        app.exitApp();
-        assertFalse(app.isRunning());
+        ConsoleApp a = new ConsoleApp();
+        a.setRunning(true);
+        a.exitApp();
+        assertFalse(a.isRunning());
     }
 
-    // ── printMainMenu() ───────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // printMainMenu()
+    // ═══════════════════════════════════════════════════════════════
 
-    @Test void testPrintMainMenuNoException() {
-        ConsoleApp app = new ConsoleApp();
-        assertDoesNotThrow(app::printMainMenu);
+    /** @test printMainMenu exception yok. */
+    @Test void testPrintMainMenu() {
+        assertDoesNotThrow(() -> new ConsoleApp().printMainMenu());
     }
 
-    // ── showPetsMenu() / showRemindersMenu() / vb. ────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // handleStorageSwitch()
+    // ═══════════════════════════════════════════════════════════════
 
-    @Test void testShowPetsMenu() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(app::showPetsMenu);
-    }
-
-    @Test void testShowRemindersMenu() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(app::showRemindersMenu);
-    }
-
-    @Test void testShowVetMenu() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(app::showVetMenu);
-    }
-
-    @Test void testShowMedicalMenu() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(app::showMedicalMenu);
-    }
-
-    // ── showSettingsMenu() / handleStorageSwitch() ───────────────────
-
-    @Test void testShowSettingsMenuNoException() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(app::showSettingsMenu);
-    }
-
-    @Test void testHandleStorageSwitchToBinary() {
-        ConsoleApp app = new ConsoleApp();
-        app.handleStorageSwitch("1");
+    /** @test BINARY. */
+    @Test void testStorageBinary() {
+        new ConsoleApp().handleStorageSwitch("1");
         assertEquals(StorageType.BINARY, StorageConfig.getActiveBackend());
     }
 
-    @Test void testHandleStorageSwitchToSqlite() {
-        ConsoleApp app = new ConsoleApp();
-        app.handleStorageSwitch("2");
+    /** @test SQLITE. */
+    @Test void testStorageSqlite() {
+        new ConsoleApp().handleStorageSwitch("2");
         assertEquals(StorageType.SQLITE, StorageConfig.getActiveBackend());
     }
 
-    @Test void testHandleStorageSwitchToMysql() {
-        ConsoleApp app = new ConsoleApp();
-        app.handleStorageSwitch("3");
+    /** @test MYSQL. */
+    @Test void testStorageMysql() {
+        new ConsoleApp().handleStorageSwitch("3");
         assertEquals(StorageType.MYSQL, StorageConfig.getActiveBackend());
     }
 
-    @Test void testHandleStorageSwitchBack() {
-        ConsoleApp app = new ConsoleApp();
-        assertDoesNotThrow(() -> app.handleStorageSwitch("0"));
+    /** @test "0" back. */
+    @Test void testStorageBack() {
+        assertDoesNotThrow(() -> new ConsoleApp().handleStorageSwitch("0"));
     }
 
-    @Test void testHandleStorageSwitchInvalid() {
-        ConsoleApp app = new ConsoleApp();
-        assertDoesNotThrow(() -> app.handleStorageSwitch("9"));
+    /** @test geçersiz. */
+    @Test void testStorageInvalid() {
+        assertDoesNotThrow(() -> new ConsoleApp().handleStorageSwitch("X"));
     }
 
-    @Test void testHandleStorageSwitchNull() {
-        ConsoleApp app = new ConsoleApp();
-        assertDoesNotThrow(() -> app.handleStorageSwitch(null));
+    /** @test null. */
+    @Test void testStorageNull() {
+        assertDoesNotThrow(() -> new ConsoleApp().handleStorageSwitch(null));
     }
 
-    // ── handleMainMenuChoice() ───────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // handleMainMenuChoice() — running=false, döngüsüz dispatch testi
+    // ═══════════════════════════════════════════════════════════════
 
-    @Test void testHandleMainMenuChoicePets() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(() -> app.handleMainMenuChoice("1"));
+    /** @test null seçim. */
+    @Test void testMainMenuNull() {
+        assertDoesNotThrow(() -> new ConsoleApp().handleMainMenuChoice(null));
     }
 
-    @Test void testHandleMainMenuChoiceReminders() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(() -> app.handleMainMenuChoice("2"));
+    /** @test geçersiz seçim. */
+    @Test void testMainMenuInvalid() {
+        assertDoesNotThrow(() -> new ConsoleApp().handleMainMenuChoice("X"));
     }
 
-    @Test void testHandleMainMenuChoiceVet() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(() -> app.handleMainMenuChoice("3"));
+    /** @test "0" → exitApp. */
+    @Test void testMainMenuExit() {
+        ConsoleApp a = new ConsoleApp();
+        a.setRunning(true);
+        a.handleMainMenuChoice("0");
+        assertFalse(a.isRunning());
     }
 
-    @Test void testHandleMainMenuChoiceMedical() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(() -> app.handleMainMenuChoice("4"));
+    /**
+     * @test "1" → showPetsMenu — running=false, iç döngüye girmez.
+     */
+    @Test void testMainMenuPets() {
+        // scanner ile "0" veriyoruz ama döngüye girilmediği için kullanılmaz
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("0\n")).handleMainMenuChoice("1"));
     }
 
-    @Test void testHandleMainMenuChoiceSettings() {
-        Scanner sc = new Scanner("1\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(() -> app.handleMainMenuChoice("5"));
+    /** @test "2" → showRemindersMenu — running=false. */
+    @Test void testMainMenuReminders() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("0\n")).handleMainMenuChoice("2"));
     }
 
-    @Test void testHandleMainMenuChoiceExit() {
-        ConsoleApp app = new ConsoleApp();
-        app.setRunning(true);
-        app.handleMainMenuChoice("0");
-        assertFalse(app.isRunning());
+    /** @test "3" → showVetMenu — running=false. */
+    @Test void testMainMenuVet() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("0\n")).handleMainMenuChoice("3"));
     }
 
-    @Test void testHandleMainMenuChoiceInvalid() {
-        ConsoleApp app = new ConsoleApp();
-        assertDoesNotThrow(() -> app.handleMainMenuChoice("X"));
+    /** @test "4" → showMedicalMenu — running=false. */
+    @Test void testMainMenuMedical() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("0\n")).handleMainMenuChoice("4"));
     }
 
-    @Test void testHandleMainMenuChoiceNull() {
-        ConsoleApp app = new ConsoleApp();
-        assertDoesNotThrow(() -> app.handleMainMenuChoice(null));
+    /** @test "5" → showSettingsMenu — settings dispatch. */
+    @Test void testMainMenuSettings() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("0\n")).handleMainMenuChoice("5"));
     }
 
-    // ── start() — Scanner tükenmesiyle loop sona erer ────────────────
+    // ═══════════════════════════════════════════════════════════════
+    // showMainMenu() — running=false → döngüye girmez
+    // ═══════════════════════════════════════════════════════════════
 
-    @Test void testStartExitsOnZero() {
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(app::start);
-        assertFalse(app.isRunning());
-    }
-
-    @Test void testStartExitsOnEmptyInput() {
-        // Girdi biter → readInput "" döner → handleMainMenuChoice("") → invalid → loop scanner bitince durur
-        Scanner sc = new Scanner("0\n");
-        ConsoleApp app = new ConsoleApp(sc);
-        assertDoesNotThrow(app::start);
-    }
-
-    // readInput exception catch branch — scanner kapatıldıktan sonra okuma
-    @Test void testReadInputException() {
-        Scanner sc = new Scanner("test\n");
-        sc.close(); // scanner'ı kapat, readInput'ta exception oluşsun
-        ConsoleApp app = new ConsoleApp(sc);
-        // exception yakalanır ve "" döner
-        assertEquals("", app.readInput());
-    }
-
-    // showMainMenu direkt çağrı — running false ise döngüye girmez
+    /** @test showMainMenu running=false. */
     @Test void testShowMainMenuNotRunning() {
-        ConsoleApp app = new ConsoleApp();
-        // running false, döngüye girmemeli
-        assertDoesNotThrow(app::showMainMenu);
+        assertDoesNotThrow(() -> new ConsoleApp().showMainMenu());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // showXMenu() direct — running=false → döngüye girmez
+    // ═══════════════════════════════════════════════════════════════
+
+    /** @test showPetsMenu running=false. */
+    @Test void testShowPetsMenuNotRunning() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("")).showPetsMenu());
+    }
+
+    /** @test showRemindersMenu running=false. */
+    @Test void testShowRemindersMenuNotRunning() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("")).showRemindersMenu());
+    }
+
+    /** @test showVetMenu running=false. */
+    @Test void testShowVetMenuNotRunning() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("")).showVetMenu());
+    }
+
+    /** @test showMedicalMenu running=false. */
+    @Test void testShowMedicalMenuNotRunning() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("")).showMedicalMenu());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // showSettingsMenu() — running=false, selectMenuOption → readInput() 1 kez
+    // ═══════════════════════════════════════════════════════════════
+
+    /** @test showSettingsMenu "0" geri. */
+    @Test void testSettingsMenuBack() {
+        assertDoesNotThrow(() -> new ConsoleApp(new Scanner("0\n")).showSettingsMenu());
+    }
+
+    /** @test showSettingsMenu "1" BINARY. */
+    @Test void testSettingsMenuBinary() {
+        new ConsoleApp(new Scanner("1\n")).showSettingsMenu();
+        assertEquals(StorageType.BINARY, StorageConfig.getActiveBackend());
+    }
+
+    /** @test showSettingsMenu "2" SQLite. */
+    @Test void testSettingsMenuSqlite() {
+        new ConsoleApp(new Scanner("2\n")).showSettingsMenu();
+        assertEquals(StorageType.SQLITE, StorageConfig.getActiveBackend());
+    }
+
+    /** @test showSettingsMenu "3" MySQL. */
+    @Test void testSettingsMenuMysql() {
+        new ConsoleApp(new Scanner("3\n")).showSettingsMenu();
+        assertEquals(StorageType.MYSQL, StorageConfig.getActiveBackend());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // start() — "0" ile hızlı exit
+    // ═══════════════════════════════════════════════════════════════
+
+    /** @test start → "0" → exit. */
+    @Test void testStartExitsOnZero() {
+        ConsoleApp a = new ConsoleApp(new Scanner("0\n"));
+        a.start();
+        assertFalse(a.isRunning());
+    }
+
+    /** @test start invalid → "0" → exit. */
+    @Test void testStartInvalidThenExit() {
+        ConsoleApp a = new ConsoleApp(new Scanner("X\n0\n"));
+        assertDoesNotThrow(a::start);
+        assertFalse(a.isRunning());
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // setScannerSource
+    // ═══════════════════════════════════════════════════════════════
+
+    /** @test setScannerSource no-op. */
+    @Test void testSetScannerSourceNoOp() {
+        assertDoesNotThrow(() -> new ConsoleApp().setScannerSource("test"));
     }
 }
