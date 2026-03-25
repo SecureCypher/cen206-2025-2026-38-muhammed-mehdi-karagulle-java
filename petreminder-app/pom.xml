@@ -261,9 +261,6 @@
         <configuration>
           <excludes>
             <exclude>com/mehdi/petreminder/gui/**</exclude>
-            <exclude>com/mehdi/petreminder/repository/*MySql*</exclude>
-            <exclude>com/mehdi/petreminder/repository/MySqlRepository*</exclude>
-            <exclude>com/mehdi/petreminder/ConsoleApp*</exclude>
           </excludes>
         </configuration>
         <executions>

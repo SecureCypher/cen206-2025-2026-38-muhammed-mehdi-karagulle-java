@@ -125,12 +125,12 @@ public class ConsoleApp {
         System.out.println("\n==========================================");
         System.out.println("   PET CARE REMINDER SYSTEM - MAIN MENU  ");
         System.out.println("==========================================");
-        System.out.println("  [1] Pets");
-        System.out.println("  [2] Reminders");
-        System.out.println("  [3] Vet Appointments");
-        System.out.println("  [4] Medical Records");
-        System.out.println("  [5] Settings");
-        System.out.println("  [0] Exit");
+        System.out.println("   Pets");
+        System.out.println("   Reminders");
+        System.out.println("   Vet Appointments");
+        System.out.println("   Medical Records");
+        System.out.println("   Settings");
+        System.out.println("   Exit");
         System.out.println("==========================================");
         System.out.print("Your choice: ");
     }

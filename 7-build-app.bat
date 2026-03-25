@@ -9,10 +9,14 @@ set "currentDir=%CD%"
 echo Change the current working directory to the script directory
 @cd /d "%~dp0"
 
-echo Delete the "docs" folder and its contents
+echo Delete generated folders and their contents
 rd /S /Q "petreminder-app\target\site\coverxygen"
 rd /S /Q "petreminder-app\target\site\coveragereport"
 rd /S /Q "petreminder-app\target\site\doxygen"
+
+echo Delete and recreate the "docs" folder (Doxygen PDF only)
+rd /S /Q "docs"
+mkdir docs
 
 echo Delete and Create the "release" folder and its contents
 rd /S /Q "release"
@@ -40,8 +44,17 @@ cd ..
 cd ..
 cd ..
 
-echo Generate Doxygen HTML and XML Documentation
+echo Generate Doxygen LaTeX/XML Documentation (PDF only, no HTML)
 call doxygen Doxyfile
+
+echo Compile LaTeX to PDF (two passes for correct TOC and references)
+pushd petreminder-app\target\site\doxygen\latex
+pdflatex -interaction=batchmode refman.tex
+pdflatex -interaction=batchmode refman.tex
+popd
+
+echo Copy Doxygen PDF to docs\ folder (Doxygen PDF only, per project guide)
+copy "petreminder-app\target\site\doxygen\latex\refman.pdf" "docs\petreminder-documentation.pdf"
 
 echo Change directory to petreminder-app
 cd petreminder-app
