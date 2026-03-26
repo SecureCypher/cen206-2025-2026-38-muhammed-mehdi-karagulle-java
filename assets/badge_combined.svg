@@ -129,10 +129,17 @@
 
         <text x="53" y="15" fill="#010101" fill-opacity=".3">Coverage</text>
         <text x="53" y="14" fill="#fff">Coverage</text>
+<<<<<<< Updated upstream
         <text class="linecoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">98.7%</text><text class="linecoverage" x="132.5" y="14">98.7%</text>
         <text class="branchcoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">96.2%</text><text class="branchcoverage" x="132.5" y="14">96.2%</text>
         <text class="methodcoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">98.8%</text><text class="methodcoverage" x="132.5" y="14">98.8%</text>
         <text class="fullmethodcoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">98%</text><text class="fullmethodcoverage" x="132.5" y="14">98%</text>
+=======
+        <text class="linecoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">97.3%</text><text class="linecoverage" x="132.5" y="14">97.3%</text>
+        <text class="branchcoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">93.8%</text><text class="branchcoverage" x="132.5" y="14">93.8%</text>
+        <text class="methodcoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">99.4%</text><text class="methodcoverage" x="132.5" y="14">99.4%</text>
+        <text class="fullmethodcoverage" x="132.5" y="15" fill="#010101" fill-opacity=".3">96.3%</text><text class="fullmethodcoverage" x="132.5" y="14">96.3%</text>
+>>>>>>> Stashed changes
     </g>
 
     <g>
