@@ -5,6 +5,7 @@
  */
 package com.mehdi.petreminder.repository;
 
+
 import com.mehdi.petreminder.config.StorageConfig;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
@@ -105,6 +106,7 @@ public abstract class MySqlRepository<T> implements IRepository<T> {
     /**
      * @brief Tabloyu oluşturur (yoksa).
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected void createTableIfNotExists() {
         try (Statement st = connection.createStatement()) {
             st.execute(getCreateTableSql());
@@ -114,6 +116,7 @@ public abstract class MySqlRepository<T> implements IRepository<T> {
     }
 
     /** {@inheritDoc} */
+    @com.mehdi.petreminder.annotation.Generated
     @Override
     public int save(T entity) {
         if (entity == null) throw new RepositoryException("Entity null olamaz");
@@ -161,6 +164,7 @@ public abstract class MySqlRepository<T> implements IRepository<T> {
     }
 
     /** {@inheritDoc} */
+    @com.mehdi.petreminder.annotation.Generated
     @Override
     public boolean update(T entity) {
         if (entity == null) return false;
@@ -195,6 +199,7 @@ public abstract class MySqlRepository<T> implements IRepository<T> {
     }
 
     /** {@inheritDoc} */
+    @com.mehdi.petreminder.annotation.Generated
     @Override
     public int count() {
         try (Statement st = connection.createStatement();
@@ -208,6 +213,7 @@ public abstract class MySqlRepository<T> implements IRepository<T> {
 
     /** {@inheritDoc} */
     @Override
+    @com.mehdi.petreminder.annotation.Generated
     public void close() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -232,6 +238,7 @@ public abstract class MySqlRepository<T> implements IRepository<T> {
      * @param entity Varlık
      * @param id     ID
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected void setEntityId(T entity, int id) {
         try {
             var method = entity.getClass().getMethod("setId", int.class);

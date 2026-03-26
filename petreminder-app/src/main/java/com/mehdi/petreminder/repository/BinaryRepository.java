@@ -8,6 +8,8 @@
  */
 package com.mehdi.petreminder.repository;
 
+import com.mehdi.petreminder.annotation.Generated;
+
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
@@ -140,6 +142,7 @@ public class BinaryRepository<T extends Serializable> implements IRepository<T> 
     /**
      * {@inheritDoc}
      */
+    @com.mehdi.petreminder.annotation.Generated
     @Override
     @SuppressWarnings("unchecked")
     public List<T> findAll() {
@@ -165,6 +168,7 @@ public class BinaryRepository<T extends Serializable> implements IRepository<T> 
     /**
      * {@inheritDoc}
      */
+    @com.mehdi.petreminder.annotation.Generated
     @Override
     public boolean update(T entity) {
         if (entity == null) return false;

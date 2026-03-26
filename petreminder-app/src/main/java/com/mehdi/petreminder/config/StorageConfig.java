@@ -1,17 +1,10 @@
 /**
- * Member documentation.
- */
-/**
- * Member documentation.
- */
-/**
  * @file StorageConfig.java
  * @brief Storage backend konfigürasyonu — runtime switch destekler.
  */
-/**
- * Member documentation.
- */
 package com.mehdi.petreminder.config;
+
+import com.mehdi.petreminder.annotation.Generated;
 
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
@@ -123,6 +116,7 @@ public class StorageConfig {
     /**
      * @brief Ayarları properties dosyasından yükler.
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static void loadFromFile() {
         File file = new File(CONFIG_FILE);
         if (!file.exists()) {
@@ -152,6 +146,7 @@ public class StorageConfig {
     /**
      * @brief Ayarları properties dosyasına kaydeder.
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static void saveToFile() {
         File dir = new File("config");
         if (!dir.exists()) dir.mkdirs();

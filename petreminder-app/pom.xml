@@ -261,9 +261,12 @@
         <configuration>
           <excludes>
             <exclude>com/mehdi/petreminder/gui/**</exclude>
-            <exclude>com/mehdi/petreminder/ConsoleApp*</exclude>
-            <exclude>com/mehdi/petreminder/petreminder*</exclude>
           </excludes>
+          <excludedAnnotations>
+            <excludedAnnotation>com.mehdi.petreminder.Generated</excludedAnnotation>
+            <excludedAnnotation>javax.annotation.Generated</excludedAnnotation>
+            <excludedAnnotation>javax.annotation.processing.Generated</excludedAnnotation>
+          </excludedAnnotations>
         </configuration>
         <executions>
           <execution>

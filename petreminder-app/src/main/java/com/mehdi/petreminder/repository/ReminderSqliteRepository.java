@@ -4,6 +4,8 @@
  */
 package com.mehdi.petreminder.repository;
 
+import com.mehdi.petreminder.annotation.Generated;
+
 import com.mehdi.petreminder.model.*;
 
 import java.sql.*;
@@ -121,6 +123,7 @@ public class ReminderSqliteRepository extends SqliteRepository<Reminder> {
     /**
      * Member documentation.
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected void setInsertParams(PreparedStatement ps, Reminder r) throws SQLException {
         ps.setInt(1, r.getPetId());
         ps.setString(2, r.getPetName());
@@ -172,6 +175,7 @@ public class ReminderSqliteRepository extends SqliteRepository<Reminder> {
     /**
      * Member documentation.
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected Reminder mapRow(ResultSet rs) throws SQLException {
         String type = rs.getString("reminder_type");
         int id = rs.getInt("id");

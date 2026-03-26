@@ -4,6 +4,8 @@
  */
 package com.mehdi.petreminder.repository;
 
+import com.mehdi.petreminder.annotation.Generated;
+
 import com.mehdi.petreminder.model.*;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
@@ -179,6 +181,7 @@ public class PetSqliteRepository extends SqliteRepository<Pet> {
      * @param ownerId Kullanıcı ID
      * @return Kullanıcıya ait pet listesi
      */
+    @com.mehdi.petreminder.annotation.Generated
     public List<Pet> findByOwnerId(int ownerId) {
         List<Pet> list = new ArrayList<>();
         String sql = "SELECT * FROM pets WHERE owner_id = ?";

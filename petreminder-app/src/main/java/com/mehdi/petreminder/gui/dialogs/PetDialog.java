@@ -1,15 +1,6 @@
 /**
- * Member documentation.
- */
-/**
- * Member documentation.
- */
-/**
  * @file PetDialog.java
  * @brief Pet ekleme / düzenleme diyaloğu.
- */
-/**
- * Member documentation.
  */
 package com.mehdi.petreminder.gui.dialogs;
 
@@ -42,13 +33,7 @@ public class PetDialog extends JDialog {
     /** @brief Oluşturulan / düzenlenen pet. */
     private Pet resultPet;
 
-    /** @brief Form alanları. */
-    /**
-     * Member documentation.
-     */
-    /**
-     * Member documentation.
-     */
+    /** @brief Form alanları: ad, ırk, doğum tarihi, cinsiyet, ağırlık, notlar. */
     private JTextField txtName, txtBreed, txtBirthDate, txtGender, txtWeight, txtNotes;
     /** @brief Tür seçici. */
     private JComboBox<String> cmbSpecies;
@@ -159,7 +144,11 @@ public class PetDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Form'a etiket ekler (yardımcı metot).
+     * @param p    Panel
+     * @param gbc  GridBagConstraints
+     * @param row  Satır
+     * @param text Etiket metni
      */
     private void addLabel(JPanel p, GridBagConstraints gbc, int row, String text) {
         gbc.gridx = 0; gbc.gridy = row;

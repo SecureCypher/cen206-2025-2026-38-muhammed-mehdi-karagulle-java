@@ -5,6 +5,8 @@
  */
 package com.mehdi.petreminder.repository;
 
+import com.mehdi.petreminder.annotation.Generated;
+
 import com.mehdi.petreminder.config.StorageConfig;
 import com.mehdi.petreminder.config.StorageType;
 import com.mehdi.petreminder.model.*;
@@ -39,6 +41,7 @@ public class RepositoryFactory {
      * @return IRepository&lt;Pet&gt; implementasyonu
      * @throws RepositoryException Backend başlatılamazsa
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static IRepository<Pet> createPetRepository() {
         StorageType type = StorageConfig.getActiveBackend();
         logger.info("Pet repository oluşturuluyor: {}", type);
@@ -54,6 +57,7 @@ public class RepositoryFactory {
      * @brief Aktif backend için Reminder repository üretir.
      * @return IRepository&lt;Reminder&gt; implementasyonu
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static IRepository<Reminder> createReminderRepository() {
         StorageType type = StorageConfig.getActiveBackend();
         logger.info("Reminder repository oluşturuluyor: {}", type);
@@ -69,6 +73,7 @@ public class RepositoryFactory {
      * @brief Aktif backend için User repository üretir.
      * @return IRepository&lt;User&gt; implementasyonu
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static IRepository<User> createUserRepository() {
         StorageType type = StorageConfig.getActiveBackend();
         logger.info("User repository oluşturuluyor: {}", type);
@@ -84,6 +89,7 @@ public class RepositoryFactory {
      * @brief Aktif backend için MedicalRecord repository üretir.
      * @return IRepository&lt;MedicalRecord&gt; implementasyonu
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static IRepository<MedicalRecord> createMedicalRecordRepository() {
         StorageType type = StorageConfig.getActiveBackend();
         logger.info("MedicalRecord repository oluşturuluyor: {}", type);

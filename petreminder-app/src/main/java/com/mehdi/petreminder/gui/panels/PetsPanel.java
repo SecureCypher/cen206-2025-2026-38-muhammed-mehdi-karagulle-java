@@ -1,10 +1,4 @@
 /**
- * Member documentation.
- */
-/**
- * Member documentation.
- */
-/**
  * @file PetsPanel.java
  * @brief Evcil hayvanlar yönetim paneli — tam CRUD.
  */
@@ -261,7 +255,10 @@ public class PetsPanel extends JPanel {
     // ── Yardımcı buton oluşturucular ─────────────────────────────────
 
     /**
-     * Member documentation.
+     * @brief Birincil stil buton oluşturur.
+     * @param text Buton metni
+     * @param al   Action listener
+     * @return JButton
      */
     private JButton buildPrimaryButton(String text, java.awt.event.ActionListener al) {
         JButton b = new JButton(text);
@@ -274,7 +271,10 @@ public class PetsPanel extends JPanel {
     }
 
     /**
-     * Member documentation.
+     * @brief Normal stil buton oluşturur.
+     * @param text Buton metni
+     * @param al   Action listener
+     * @return JButton
      */
     private JButton buildButton(String text, java.awt.event.ActionListener al) {
         JButton b = new JButton(text);
@@ -285,7 +285,10 @@ public class PetsPanel extends JPanel {
     }
 
     /**
-     * Member documentation.
+     * @brief Tehlike stil buton oluşturur.
+     * @param text Buton metni
+     * @param al   Action listener
+     * @return JButton
      */
     private JButton buildDangerButton(String text, java.awt.event.ActionListener al) {
         JButton b = new JButton(text);
@@ -298,7 +301,11 @@ public class PetsPanel extends JPanel {
     }
 
     /**
-     * Member documentation.
+     * @brief Ikon buton oluşturur.
+     * @param icon    İkon metni
+     * @param tooltip Tooltip metni
+     * @param al      Action listener
+     * @return JButton
      */
     private JButton buildIconButton(String icon, String tooltip,
                                     java.awt.event.ActionListener al) {

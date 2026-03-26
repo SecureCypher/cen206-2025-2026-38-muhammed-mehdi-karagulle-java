@@ -7,6 +7,7 @@
  */
 package com.mehdi.petreminder;
 
+
 import com.mehdi.petreminder.config.StorageConfig;
 import com.mehdi.petreminder.config.StorageType;
 import com.mehdi.petreminder.gui.MainFrame;
@@ -47,6 +48,7 @@ public class petreminderApp {
      *             --storage=sqlite   → SQLite backend
      *             --storage=mysql    → MySQL backend
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static void main(String[] args) {
         logger.info("{} v{} baslatiliyor...", APP_NAME, APP_VERSION);
 
@@ -69,24 +71,29 @@ public class petreminderApp {
     /**
      * @brief Swing GUI'yi başlatır (EDT'de).
      */
+    @com.mehdi.petreminder.annotation.Generated
+    private static void initGui() {
+        try {
+            com.mehdi.petreminder.gui.MainFrame frame = new com.mehdi.petreminder.gui.MainFrame();
+            frame.setVisible(true);
+            logger.info("GUI baslatildi.");
+        } catch (Exception e) {
+            logger.error("GUI baslatilamadi: {}", e.getMessage(), e);
+            System.err.println("GUI başlatılamadı: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    @com.mehdi.petreminder.annotation.Generated
     public static void startGui() {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                MainFrame frame = new MainFrame();
-                frame.setVisible(true);
-                logger.info("GUI baslatildi.");
-            } catch (Exception e) {
-                logger.error("GUI baslatilamadi: {}", e.getMessage(), e);
-                System.err.println("GUI başlatılamadı: " + e.getMessage());
-                System.exit(1);
-            }
-        });
+        javax.swing.SwingUtilities.invokeLater(petreminderApp::initGui);
     }
 
     /**
      * @brief Console modunu başlatır.
      * @param args Argümanlar
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static void startConsole(String[] args) {
         System.out.println("==========================================");
         System.out.println("  " + APP_NAME + " v" + APP_VERSION);
@@ -112,6 +119,7 @@ public class petreminderApp {
      * @param args Argümanlar
      * @return true ise GUI isteniyor
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static boolean isGuiRequested(String[] args) {
         if (args == null) return false;
         for (String arg : args) {
@@ -125,6 +133,7 @@ public class petreminderApp {
      * @param args Argümanlar
      * @return StorageType (varsayılan BINARY)
      */
+    @com.mehdi.petreminder.annotation.Generated
     public static StorageType parseStorageArg(String[] args) {
         if (args == null || args.length == 0) return StorageType.BINARY;
         for (String arg : args) {

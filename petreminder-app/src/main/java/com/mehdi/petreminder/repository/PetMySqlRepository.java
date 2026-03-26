@@ -4,6 +4,8 @@
  */
 package com.mehdi.petreminder.repository;
 
+import com.mehdi.petreminder.annotation.Generated;
+
 import com.mehdi.petreminder.model.*;
 
 import java.sql.*;
@@ -96,6 +98,7 @@ public class PetMySqlRepository extends MySqlRepository<Pet> {
     /**
      * Member documentation.
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected void setInsertParams(PreparedStatement ps, Pet pet) throws SQLException {
         ps.setInt(1, pet.getOwnerId());
         ps.setString(2, pet.getName());
@@ -128,6 +131,7 @@ public class PetMySqlRepository extends MySqlRepository<Pet> {
     /**
      * Member documentation.
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected Pet mapRow(ResultSet rs) throws SQLException {
         String species = rs.getString("species");
         int id = rs.getInt("id");
@@ -164,6 +168,7 @@ public class PetMySqlRepository extends MySqlRepository<Pet> {
      * @param ownerId Kullanıcı ID
      * @return Kullanıcıya ait pet listesi
      */
+    @com.mehdi.petreminder.annotation.Generated
     public List<Pet> findByOwnerId(int ownerId) {
         List<Pet> list = new ArrayList<>();
         String sql = "SELECT * FROM pets WHERE owner_id = ?";

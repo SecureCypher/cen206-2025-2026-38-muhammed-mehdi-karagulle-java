@@ -48,39 +48,15 @@ public class ReminderDialog extends JDialog {
     private JTextField txtDesc;
 
     // Tür-özel alanlar
-    /** @brief Yem türü. */
-    /**
-     * Member documentation.
-     */
-    /**
-     * Member documentation.
-     */
+    /** @brief Yem türü ve porsiyon alanları. */
     private JTextField txtFoodType, txtPortionGrams;
-    /** @brief İlaç adı. */
-    /**
-     * Member documentation.
-     */
-    /**
-     * Member documentation.
-     */
+    /** @brief İlaç adı, doz ve birim alanları. */
     private JTextField txtMedName, txtDosage, txtDosageUnit;
-    /** @brief Egzersiz türü. */
-    /**
-     * Member documentation.
-     */
-    /**
-     * Member documentation.
-     */
+    /** @brief Egzersiz türü ve süre alanları. */
     private JTextField txtExerciseType, txtDuration;
     /** @brief Bakım türü. */
     private JTextField txtGroomingType;
-    /** @brief Vet adı. */
-    /**
-     * Member documentation.
-     */
-    /**
-     * Member documentation.
-     */
+    /** @brief Veteriner adı, klinik ve sebep alanları. */
     private JTextField txtVetName, txtClinic, txtReason;
 
     /** @brief Dinamik alan paneli. */
@@ -105,7 +81,7 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief UI bileşenlerini oluşturur.
      */
     private void buildUI() {
         JPanel main = new JPanel(new BorderLayout(8, 8));
@@ -118,7 +94,8 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Ortak form panel oluşturur.
+     * @return JPanel
      */
     private JPanel buildCommonForm() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -150,7 +127,7 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Türe göre özel alanları günceller.
      */
     private void updateSpecificFields() {
         specificPanel.removeAll();
@@ -192,7 +169,8 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Formu mevcut reminder bilgileriyle doldurur.
+     * @param r Düzenlenen reminder
      */
     private void fillForm(Reminder r) {
         txtPetId.setText(String.valueOf(r.getPetId()));
@@ -207,7 +185,7 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Kaydet butonuna tıklandığında çalışır — reminder oluşturur.
      */
     private void onSave() {
         try {
@@ -271,7 +249,8 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Kaydet / İptal buton panelini oluşturur.
+     * @return JPanel
      */
     private JPanel buildButtons() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -288,7 +267,13 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Form'a etiket + alan ekler.
+     * @param p     Panel
+     * @param gbc   GridBagConstraints
+     * @param row   Satır numarası
+     * @param label Etiket metni
+     * @param field Alan bileşeni
+     * @return field
      */
     private JTextField addField(JPanel p, GridBagConstraints gbc, int row, String label, JTextField field) {
         addLabel(p, gbc, row, label);
@@ -298,7 +283,11 @@ public class ReminderDialog extends JDialog {
     }
 
     /**
-     * Member documentation.
+     * @brief Form'a etiket ekler (yardımcı).
+     * @param p    Panel
+     * @param gbc  GridBagConstraints
+     * @param row  Satır
+     * @param text Etiket metni
      */
     private void addLabel(JPanel p, GridBagConstraints gbc, int row, String text) {
         gbc.gridx = 0; gbc.gridy = row;

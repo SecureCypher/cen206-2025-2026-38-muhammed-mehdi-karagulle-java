@@ -4,6 +4,8 @@
  */
 package com.mehdi.petreminder.repository;
 
+import com.mehdi.petreminder.annotation.Generated;
+
 import com.mehdi.petreminder.model.MedicalRecord;
 
 import java.sql.*;
@@ -85,6 +87,7 @@ public class MedicalRecordSqliteRepository extends SqliteRepository<MedicalRecor
     /**
      * Member documentation.
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected void setInsertParams(PreparedStatement ps, MedicalRecord m) throws SQLException {
         ps.setInt(1, m.getPetId());
         ps.setString(2, m.getPetName());

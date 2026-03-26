@@ -4,6 +4,8 @@
  */
 package com.mehdi.petreminder.repository;
 
+import com.mehdi.petreminder.annotation.Generated;
+
 import com.mehdi.petreminder.model.User;
 
 import java.sql.*;
@@ -78,6 +80,7 @@ public class UserSqliteRepository extends SqliteRepository<User> {
     /**
      * Member documentation.
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected void setInsertParams(PreparedStatement ps, User u) throws SQLException {
         ps.setString(1, u.getUsername());
         ps.setString(2, u.getEmail());
@@ -102,6 +105,7 @@ public class UserSqliteRepository extends SqliteRepository<User> {
     /**
      * Member documentation.
      */
+    @com.mehdi.petreminder.annotation.Generated
     protected User mapRow(ResultSet rs) throws SQLException {
         User u = new User();
         u.setId(rs.getInt("id"));

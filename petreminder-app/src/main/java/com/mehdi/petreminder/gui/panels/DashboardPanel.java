@@ -2,9 +2,6 @@
  * @file DashboardPanel.java
  * @brief Dashboard — özet istatistikler ve son hatırlatıcılar.
  */
-/**
- * Member documentation.
- */
 package com.mehdi.petreminder.gui.panels;
 
 import com.mehdi.petreminder.gui.MainFrame;
@@ -42,13 +39,7 @@ public class DashboardPanel extends JPanel {
     /** @brief Medical service. */
     private final MedicalRecordService medicalService;
 
-    /** @brief Özet etiketleri. */
-    /**
-     * Member documentation.
-     */
-    /**
-     * Member documentation.
-     */
+    /** @brief Özet etiketleri: pet, hatırlatıcı, gecikmiş, sağlık sayıları. */
     private JLabel lblPetCount, lblReminderCount, lblOverdueCount, lblMedicalCount;
 
     /** @brief Bekleyen liste modeli. */

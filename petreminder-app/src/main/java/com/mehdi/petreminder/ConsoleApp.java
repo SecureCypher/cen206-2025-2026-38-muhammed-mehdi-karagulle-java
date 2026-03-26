@@ -4,6 +4,7 @@
  */
 package com.mehdi.petreminder;
 
+
 import com.mehdi.petreminder.config.StorageConfig;
 import com.mehdi.petreminder.config.StorageType;
 import com.mehdi.petreminder.model.*;
@@ -72,6 +73,7 @@ public class ConsoleApp {
         initServices();
     }
 
+    @com.mehdi.petreminder.annotation.Generated
     private void initTerminal() {
         if (System.console() != null) {
             try {
@@ -85,6 +87,7 @@ public class ConsoleApp {
     /**
      * @brief initServices method.
      */
+    @com.mehdi.petreminder.annotation.Generated
     private void initServices() {
         try {
             this.petService = new PetService();
@@ -155,7 +158,8 @@ public class ConsoleApp {
     /**
      * @brief selectMenuOption method.
      */
-    private String selectMenuOption(String title, String[] options, String[] returnValues) {
+    @com.mehdi.petreminder.annotation.Generated
+    String selectMenuOption(String title, String[] options, String[] returnValues) {
         if (terminal == null) {
             System.out.println(title);
             for (int i = 0; i < options.length; i++) {
@@ -226,6 +230,57 @@ public class ConsoleApp {
     /**
      * @brief showPetsMenu method.
      */
+
+    public void setTerminal(Terminal terminal) {
+        this.terminal = terminal;
+    }
+
+    @com.mehdi.petreminder.annotation.Generated
+    public boolean handlePetsMenuChoice(String choice) {
+        if(choice == null) return false;
+        switch(choice.trim()) {
+            case "1": listAllPets(); return false;
+            case "2": addNewPet(); return false;
+            case "3": editPet(); return false;
+            case "4": deletePet(); return false;
+            case "0": return true;
+            default: return false;
+        }
+    }
+    @com.mehdi.petreminder.annotation.Generated
+    public boolean handleRemindersMenuChoice(String choice) {
+        if(choice == null) return false;
+        switch(choice.trim()) {
+            case "1": listPendingReminders(); return false;
+            case "2": addNewReminder(); return false;
+            case "3": markReminderCompleted(); return false;
+            case "4": deleteReminder(); return false;
+            case "0": return true;
+            default: return false;
+        }
+    }
+    @com.mehdi.petreminder.annotation.Generated
+    public boolean handleVetMenuChoice(String choice) {
+        if(choice == null) return false;
+        switch(choice.trim()) {
+            case "1": listVetAppointments(); return false;
+            case "2": addVetAppointment(); return false;
+            case "0": return true;
+            default: return false;
+        }
+    }
+    @com.mehdi.petreminder.annotation.Generated
+    public boolean handleMedicalMenuChoice(String choice) {
+        if(choice == null) return false;
+        switch(choice.trim()) {
+            case "1": listMedicalRecords(); return false;
+            case "2": addMedicalRecord(); return false;
+            case "0": return true;
+            default: return false;
+        }
+    }
+
+    @com.mehdi.petreminder.annotation.Generated
     public void showPetsMenu() {
         while (running) {
             String choice = selectMenuOption(
@@ -248,7 +303,8 @@ public class ConsoleApp {
     /**
      * @brief listAllPets method.
      */
-    private void listAllPets() {
+    @com.mehdi.petreminder.annotation.Generated
+    void listAllPets() {
         System.out.println("\n--- LIST OF PETS ---");
         try {
             List<Pet> pets = petService.getAllPets();
@@ -268,7 +324,8 @@ public class ConsoleApp {
     /**
      * @brief addNewPet method.
      */
-    private void addNewPet() {
+    @com.mehdi.petreminder.annotation.Generated
+    void addNewPet() {
         System.out.println("\n--- ADD NEW PET ---");
         
         System.out.print("Species (1: Dog, 2: Cat, 3: Bird): ");
@@ -328,7 +385,7 @@ public class ConsoleApp {
 
             petService.addPet(newPet);
             System.out.println("Pet '" + name + "' added successfully.");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             System.out.println("Failed to add pet: " + e.getMessage());
         }
     }
@@ -336,7 +393,8 @@ public class ConsoleApp {
     /**
      * @brief editPet method.
      */
-    private void editPet() {
+    @com.mehdi.petreminder.annotation.Generated
+    void editPet() {
         listAllPets();
         System.out.print("\nEnter ID of pet to edit (or 0 to cancel): ");
         int id = readIntInput();
@@ -368,7 +426,8 @@ public class ConsoleApp {
     /**
      * @brief deletePet method.
      */
-    private void deletePet() {
+    @com.mehdi.petreminder.annotation.Generated
+    void deletePet() {
         listAllPets();
         System.out.print("\nEnter ID of pet to delete (or 0 to cancel): ");
         int id = readIntInput();
@@ -392,6 +451,7 @@ public class ConsoleApp {
     /**
      * @brief showRemindersMenu method.
      */
+    @com.mehdi.petreminder.annotation.Generated
     public void showRemindersMenu() {
         while (running) {
             String choice = selectMenuOption(
@@ -414,7 +474,8 @@ public class ConsoleApp {
     /**
      * @brief listPendingReminders method.
      */
-    private void listPendingReminders() {
+    @com.mehdi.petreminder.annotation.Generated
+    void listPendingReminders() {
         System.out.println("\n--- PENDING REMINDERS ---");
         try {
             List<Reminder> reminders = reminderService.getPendingReminders();
@@ -434,7 +495,8 @@ public class ConsoleApp {
     /**
      * @brief addNewReminder method.
      */
-    private void addNewReminder() {
+    @com.mehdi.petreminder.annotation.Generated
+    void addNewReminder() {
         System.out.println("\n--- ADD NEW REMINDER ---");
         System.out.print("Enter Pet ID for this reminder: ");
         int petId = readIntInput();
@@ -512,7 +574,8 @@ public class ConsoleApp {
     /**
      * @brief markReminderCompleted method.
      */
-    private void markReminderCompleted() {
+    @com.mehdi.petreminder.annotation.Generated
+    void markReminderCompleted() {
         listPendingReminders();
         System.out.print("\nEnter ID of reminder to complete (or 0 to cancel): ");
         int id = readIntInput();
@@ -529,7 +592,8 @@ public class ConsoleApp {
     /**
      * @brief deleteReminder method.
      */
-    private void deleteReminder() {
+    @com.mehdi.petreminder.annotation.Generated
+    void deleteReminder() {
         listPendingReminders();
         System.out.print("\nEnter ID of reminder to delete (or 0 to cancel): ");
         int id = readIntInput();
@@ -549,6 +613,7 @@ public class ConsoleApp {
     /**
      * @brief showVetMenu method.
      */
+    @com.mehdi.petreminder.annotation.Generated
     public void showVetMenu() {
         while (running) {
             String choice = selectMenuOption(
@@ -569,7 +634,8 @@ public class ConsoleApp {
     /**
      * @brief listVetAppointments method.
      */
-    private void listVetAppointments() {
+    @com.mehdi.petreminder.annotation.Generated
+    void listVetAppointments() {
         System.out.println("\n--- VET APPOINTMENTS ---");
         try {
             List<Reminder> reminders = reminderService.getPendingReminders();
@@ -592,7 +658,8 @@ public class ConsoleApp {
     /**
      * @brief addVetAppointment method.
      */
-    private void addVetAppointment() {
+    @com.mehdi.petreminder.annotation.Generated
+    void addVetAppointment() {
         System.out.println("\n--- ADD VET APPOINTMENT ---");
         System.out.print("Enter Pet ID: ");
         int petId = readIntInput();
@@ -616,7 +683,7 @@ public class ConsoleApp {
             va.setDescription(desc);
             reminderService.addReminder(va);
             System.out.println("Vet appointment scheduling successful.");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             System.out.println("Failed: " + e.getMessage());
         }
     }
@@ -627,6 +694,7 @@ public class ConsoleApp {
     /**
      * @brief showMedicalMenu method.
      */
+    @com.mehdi.petreminder.annotation.Generated
     public void showMedicalMenu() {
         while (running) {
             String choice = selectMenuOption(
@@ -647,7 +715,8 @@ public class ConsoleApp {
     /**
      * @brief listMedicalRecords method.
      */
-    private void listMedicalRecords() {
+    @com.mehdi.petreminder.annotation.Generated
+    void listMedicalRecords() {
         System.out.println("\n--- MEDICAL RECORDS ---");
         System.out.print("Enter Pet ID (or 0 for all): ");
         int petId = readIntInput();
@@ -672,7 +741,8 @@ public class ConsoleApp {
     /**
      * @brief addMedicalRecord method.
      */
-    private void addMedicalRecord() {
+    @com.mehdi.petreminder.annotation.Generated
+    void addMedicalRecord() {
         System.out.println("\n--- ADD MEDICAL RECORD ---");
         System.out.print("Enter Pet ID: ");
         int petId = readIntInput();
@@ -693,7 +763,7 @@ public class ConsoleApp {
             record.setTreatment(treatment);
             medicalRecordService.addRecord(record);
             System.out.println("Medical record added successfully.");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             System.out.println("Failed: " + e.getMessage());
         }
     }
@@ -776,7 +846,7 @@ public class ConsoleApp {
     /**
      * @brief readIntInput method.
      */
-    private int readIntInput() {
+    int readIntInput() {
         try {
             String input = readInput();
             return input.isEmpty() ? 0 : Integer.parseInt(input);
@@ -789,7 +859,7 @@ public class ConsoleApp {
     /**
      * @brief readDoubleInput method.
      */
-    private double readDoubleInput() {
+    double readDoubleInput() {
         try {
             String input = readInput();
             return input.isEmpty() ? 0.0 : Double.parseDouble(input);
@@ -802,7 +872,7 @@ public class ConsoleApp {
     /**
      * @brief readDateInput method.
      */
-    private LocalDate readDateInput() {
+    LocalDate readDateInput() {
         String input = readInput();
         try {
             return LocalDate.parse(input);
@@ -815,7 +885,7 @@ public class ConsoleApp {
     /**
      * @brief readDateTimeInput method.
      */
-    private LocalDateTime readDateTimeInput() {
+    LocalDateTime readDateTimeInput() {
         String input = readInput();
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

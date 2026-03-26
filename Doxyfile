@@ -797,6 +797,7 @@ FILE_VERSION_FILTER    =
 # tag is left empty.
 
 LAYOUT_FILE            =
+GENERATE_XML           = YES
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
