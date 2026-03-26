@@ -1,0 +1,47 @@
+@startuml SeqLogin
+title User Login - Sequence Diagram
+
+actor "Pet Owner" as User
+boundary "ConsoleApp" as UI
+control "UserService" as US
+database "IRepository<User>\n(Active Backend)" as Repo
+
+User -> UI : Selects "Login" from Main Menu
+activate UI
+
+UI -> User : Prompt for username
+User -> UI : Enters username
+
+UI -> User : Prompt for password
+User -> UI : Enters password
+
+UI -> US : login(username, password)
+activate US
+
+US -> Repo : findAll()
+activate Repo
+Repo -> Repo : SELECT * FROM users
+Repo --> US : List<User>
+deactivate Repo
+
+US -> US : Find user by username
+US -> US : Hash input password
+US -> US : Compare with stored passwordHash
+
+alt Valid Credentials
+    US -> US : user.setLastLogin(now())
+    US -> Repo : update(user)
+    activate Repo
+    Repo --> US : true
+    deactivate Repo
+    US --> UI : returns User object
+    UI -> User : Display "Login successful!\nWelcome, [fullName]"
+else Invalid Credentials
+    US --> UI : throws ServiceException
+    UI -> User : Display "Invalid username or password.\nPlease try again."
+end
+
+deactivate US
+deactivate UI
+
+@enduml

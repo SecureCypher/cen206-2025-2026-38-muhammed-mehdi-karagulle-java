@@ -1,0 +1,51 @@
+@startuml ActivityLogin
+title User Login and Registration Flow
+
+start
+
+:Display Authentication Menu;
+
+switch (User Choice?)
+case (Login)
+    :Prompt for username;
+    :Prompt for password;
+    :Hash input password;
+    :Query UserRepository;
+
+    if (User found and hash matches?) then (yes)
+        :Update lastLogin timestamp;
+        :Display "Login successful!";
+        :Navigate to Main Menu;
+    else (no)
+        :Display "Invalid credentials.";
+        :Return to Authentication Menu;
+    endif
+
+case (Register)
+    :Prompt for username;
+    :Prompt for email;
+    :Prompt for password;
+    :Prompt for full name;
+
+    :Check if username exists;
+
+    if (Username available?) then (yes)
+        :Hash password;
+        :Create new User object;
+        :UserRepository.save(user);
+        :Display "Registration successful!";
+        :Navigate to Main Menu;
+    else (no)
+        :Display "Username already taken.";
+        :Return to Authentication Menu;
+    endif
+
+case (Guest Mode)
+    :Create temporary session;
+    :Display "Entering as guest.\nData will not be saved.";
+    :Navigate to Main Menu;
+endswitch
+
+stop
+
+@enduml

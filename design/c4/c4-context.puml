@@ -5,19 +5,25 @@ LAYOUT_WITH_LEGEND()
 
 title Pet Care Reminder System — System Context Diagram
 
-Person(user, "Pet Owner", "Evcil hayvan sahibi.\nHayvanlarını ve hatırlatıcılarını yönetir.")
+Person(user, "Pet Owner", "A registered pet owner who manages pets, schedules reminders, and tracks medical records.")
 
-System(petreminder, "Pet Care Reminder System", "Evcil hayvan bakım hatırlatıcı sistemi.\nJava tabanlı konsol ve GUI uygulaması.")
+Person(guest, "Guest User", "Uses the system in read-only mode without registering. Can only view pets and reminders.")
 
-System_Ext(mysql, "MySQL Database", "Docker üzerinde çalışan\nilişkisel veritabanı.")
+System(petreminder, "Pet Care Reminder System", "Java-based application that allows pet owners to manage pet care schedules, veterinary appointments, feeding, medication, grooming, and exercise reminders.")
 
-System_Ext(sqlite, "SQLite Database", "Gömülü dosya tabanlı\nilişkisel veritabanı.")
+System_Ext(mysql, "MySQL Database", "Relational database running in a Docker container for persistent data storage. Port 3306.")
 
-System_Ext(filesystem, "File System", "Binary serialization ile\nveri depolama.")
+System_Ext(sqlite, "SQLite Database", "Embedded file-based relational database for lightweight local storage.")
 
-Rel(user, petreminder, "Kullanır", "Console / Swing GUI")
-Rel(petreminder, mysql, "Veri okur/yazar", "JDBC")
-Rel(petreminder, sqlite, "Veri okur/yazar", "JDBC")
-Rel(petreminder, filesystem, "Veri okur/yazar", "Java Serialization")
+System_Ext(filesystem, "Local File System", "Binary serialization storage using Java ObjectOutputStream for offline data persistence.")
+
+System_Ext(docker, "Docker Engine", "Container platform that runs the MySQL container. Configured via docker-compose.yml.")
+
+Rel(user, petreminder, "Uses", "Console / Swing GUI")
+Rel(guest, petreminder, "Uses (read-only)", "Console / Swing GUI")
+Rel(petreminder, mysql, "Reads/Writes data", "JDBC MySQL Connector")
+Rel(petreminder, sqlite, "Reads/Writes data", "JDBC SQLite")
+Rel(petreminder, filesystem, "Reads/Writes data", "Java Serialization")
+Rel(docker, mysql, "Runs", "Container orchestration")
 
 @enduml

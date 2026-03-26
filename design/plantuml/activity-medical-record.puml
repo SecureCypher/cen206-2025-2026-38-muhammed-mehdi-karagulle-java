@@ -1,0 +1,54 @@
+@startuml ActivityMedicalRecord
+title Medical Record Management Flow
+
+start
+
+:Display Medical Records Menu;
+
+switch (User Choice?)
+case (Add New Record)
+    :Display list of pets;
+    :User selects a pet;
+
+    :Prompt for recordDate;
+    :Prompt for recordType;
+
+    switch (Record Type?)
+    case (Vaccination)
+        :Prompt for vaccineName;
+        :Prompt for veterinarianName;
+    case (Surgery)
+        :Prompt for diagnosis;
+        :Prompt for treatment;
+        :Prompt for veterinarianName;
+        :Prompt for cost;
+    case (Checkup)
+        :Prompt for diagnosis;
+        :Prompt for treatment;
+        :Prompt for nextCheckDate;
+    case (Illness)
+        :Prompt for diagnosis;
+        :Prompt for treatment;
+        :Prompt for notes;
+    endswitch
+
+    :Create MedicalRecord object;
+    :MedicalRecordService.addRecord(record);
+    :Display "Medical record saved!";
+
+case (View Records)
+    :MedicalRecordService.getAllRecords();
+
+    if (Records found?) then (yes)
+        :Display records table:\n| ID | Pet | Date | Type | Diagnosis | Vet |;
+    else (no)
+        :Display "No medical records found.";
+    endif
+
+case (Back)
+    :Return to Main Menu;
+endswitch
+
+stop
+
+@enduml

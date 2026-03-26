@@ -1,0 +1,54 @@
+@startuml ActivityVetAppointment
+title Vet Appointment Management Flow
+
+start
+
+:Display Vet Appointments Menu;
+
+switch (User Choice?)
+case (Schedule New Appointment)
+    :Display list of pets;
+    :User selects a pet;
+
+    :Prompt for veterinarianName;
+    :Prompt for clinicName;
+    :Prompt for clinicPhone;
+    :Prompt for reason;
+    :Prompt for estimatedCost;
+    :Prompt for scheduledTime;
+
+    :Create VetAppointment object;
+
+    :ReminderService.validateReminder();
+
+    if (Validation passed?) then (yes)
+        :ReminderRepository.save(appointment);
+        :EventManager.notify(REMINDER_ADDED);
+        :Display "Vet appointment scheduled!";
+    else (no)
+        :Display validation message;
+    endif
+
+case (View Appointments)
+    :ReminderService.getAllReminders();
+    :Filter by type == "VET_APPOINTMENT";
+
+    if (Appointments found?) then (yes)
+        :Display appointment table:\n| ID | Pet | Vet | Clinic | Date | Status |;
+    else (no)
+        :Display "No vet appointments found.";
+    endif
+
+case (Confirm Appointment)
+    :User enters appointment ID;
+    :Set confirmed = true;
+    :Repository.update(appointment);
+    :Display "Appointment confirmed.";
+
+case (Back)
+    :Return to Main Menu;
+endswitch
+
+stop
+
+@enduml

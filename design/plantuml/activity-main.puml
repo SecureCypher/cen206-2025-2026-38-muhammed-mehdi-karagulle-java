@@ -1,0 +1,64 @@
+@startuml ActivityMain
+title Main Application Flow
+
+start
+
+:Launch Application;
+
+:StorageConfig.load()\nLoad persisted storage backend preference;
+
+:RepositoryFactory.reinitialize()\nCreate repositories for active backend;
+
+if (GUI mode?) then (yes)
+    :Initialize Swing MainFrame;
+else (no)
+    :Initialize ConsoleApp;
+endif
+
+:Display Authentication Menu;
+
+switch (Authentication?)
+case (Login)
+    :UserService.login(username, password);
+    if (Credentials valid?) then (yes)
+        :Set active user session;
+    else (no)
+        :Display "Invalid credentials.";
+        stop
+    endif
+case (Register)
+    :UserService.register(newUser);
+    :Set active user session;
+case (Guest)
+    :Create guest session (read-only);
+endswitch
+
+repeat
+
+    :Display Main Menu;
+
+    switch (User Selection?)
+    case (1)
+        :Open Pet Management;
+    case (2)
+        :Open Reminders;
+    case (3)
+        :Open Vet Appointments;
+    case (4)
+        :Open Medical Records;
+    case (5)
+        :Open Settings;
+    case (0)
+        break
+    endswitch
+
+repeat while (Continue?) is (yes)
+
+:Graceful Shutdown;
+:Close all repository connections\n(PetRepo, ReminderRepo, UserRepo,\nMedicalRecordRepo);
+:EventManager.clearAll()\nRemove all observer subscriptions;
+:Display goodbye message;
+
+stop
+
+@enduml

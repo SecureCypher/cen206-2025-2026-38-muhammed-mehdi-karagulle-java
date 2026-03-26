@@ -1,0 +1,47 @@
+@startuml ActivitySettings
+title Settings and Storage Switch Flow
+
+start
+
+:Display Settings Menu;
+:Show current storage backend;
+
+:Display storage options:\n[1] Binary File I/O\n[2] SQLite\n[3] MySQL (Docker required)\n[0] Back;
+
+:User selects a storage option;
+
+switch (Selection?)
+case (Binary)
+    :StorageConfig.setActiveBackend(BINARY);
+    :Display "Storage switched to Binary.";
+case (SQLite)
+    :StorageConfig.setActiveBackend(SQLITE);
+    :Display "Storage switched to SQLite.";
+case (MySQL)
+    :StorageConfig.setActiveBackend(MYSQL);
+
+    :Check Docker connection;
+
+    if (Docker available?) then (yes)
+        :Display "Storage switched to MySQL.";
+    else (no)
+        :Display "Docker is not running.\nPlease start Docker Compose.";
+        :Revert to previous backend;
+    endif
+
+case (Back)
+    :Return to Main Menu;
+    stop
+endswitch
+
+:EventManager.notify(STORAGE_CHANGED);
+:All observers refresh data;
+:RepositoryFactory creates new repositories;
+
+:Display updated storage status;
+
+:Return to Main Menu;
+
+stop
+
+@enduml

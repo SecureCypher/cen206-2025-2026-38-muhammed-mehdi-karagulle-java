@@ -1,0 +1,90 @@
+@startuml StatePet
+title Pet Lifecycle — State Diagram
+
+skinparam stateFontSize 12
+
+[*] --> Transient : new Dog() / Cat() / Bird()
+
+state Transient {
+    Transient : id = 0 (not yet persisted)
+    Transient : Exists in memory only
+    Transient : Entry / validatePet() called
+}
+
+Transient --> Persistent : PetService.addPet()\nrepository.save(pet)\n/ EventManager.notify(PET_ADDED)
+
+state Persistent {
+
+    state Active {
+        Active : Pet is stored in repository
+        Active : id > 0 (assigned by DB)
+    }
+
+    state WithReminders {
+        WithReminders : Pet has 1+ linked Reminders
+        WithReminders : (FeedingReminder, MedicationReminder, etc.)
+    }
+
+    state WithMedicalHistory {
+        WithMedicalHistory : Pet has 1+ MedicalRecords
+        WithMedicalHistory : (vaccinations, checkups, surgeries)
+    }
+
+    state FullyTracked {
+        FullyTracked : Pet has both Reminders
+        FullyTracked : and MedicalRecords
+    }
+
+    [*] --> Active
+
+    Active --> WithReminders : addReminder()
+    Active --> WithMedicalHistory : addMedicalRecord()
+
+    WithReminders --> FullyTracked : addMedicalRecord()
+    WithMedicalHistory --> FullyTracked : addReminder()
+}
+
+Persistent --> Updated : PetService.updatePet()\nrepository.update(pet)\n/ EventManager.notify(PET_UPDATED)
+
+state Updated {
+    Updated : Entry / fields modified
+    Updated : Entry / repository.update() called
+}
+
+Updated --> Persistent : update committed
+
+Persistent --> Deleted : PetService.deletePet(id)
+Updated --> Deleted : PetService.deletePet(id)
+
+state Deleted #cccccc {
+    Deleted : Entry / repository.delete(id)
+    Deleted : Entry / cascade delete linked Reminders
+    Deleted : Entry / cascade delete linked MedicalRecords
+    Deleted : Entry / EventManager.notify(PET_DELETED)
+}
+
+Deleted --> [*]
+
+note right of Transient
+  **Polymorphism:**
+  makeSound() returns different values
+  per subtype:
+  - Dog: "Woof! Woof!"
+  - Cat: "Meow!"
+  - Bird: "Tweet! Tweet!"
+
+  getIconName() returns:
+  - Dog: "dog"
+  - Cat: "cat"
+  - Bird: "bird"
+end note
+
+note bottom of Deleted
+  **Cascade Delete:**
+  When a Pet is deleted, all linked
+  Reminders and MedicalRecords are
+  also removed from the repository
+  to maintain referential integrity.
+end note
+
+@enduml

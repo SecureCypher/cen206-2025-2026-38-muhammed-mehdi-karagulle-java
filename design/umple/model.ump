@@ -1,9 +1,52 @@
+// ============================================================
 // Pet Care Reminder System — UMPLE Domain Model
-// Online editor: https://cruise.umple.org/umpleonline/
+// CEN206 Object-Oriented Programming
+// Authors: Mehdi Karagulle, Ibrahim Demirci, Zumre Uykun
+// ============================================================
 
-class Pet {
-  abstract;
-  isA Serializable;
+// ────────────────────────────────────────────────────────────
+// ENUMERATIONS
+// ────────────────────────────────────────────────────────────
+
+class StorageType {
+  isA EnumType;
+  constant BINARY = "BINARY";
+  constant SQLITE = "SQLITE";
+  constant MYSQL  = "MYSQL";
+}
+
+class EventType {
+  isA EnumType;
+  constant PET_ADDED = "PET_ADDED";
+  constant PET_UPDATED = "PET_UPDATED";
+  constant PET_DELETED = "PET_DELETED";
+  constant REMINDER_ADDED = "REMINDER_ADDED";
+  constant REMINDER_COMPLETED = "REMINDER_COMPLETED";
+  constant REMINDER_UPDATED = "REMINDER_UPDATED";
+  constant REMINDER_DELETED = "REMINDER_DELETED";
+  constant STORAGE_CHANGED = "STORAGE_CHANGED";
+}
+
+// ────────────────────────────────────────────────────────────
+// DOMAIN MODELS
+// ────────────────────────────────────────────────────────────
+
+class User {
+  Integer id;
+  String username;
+  String email;
+  String passwordHash;
+  String fullName;
+  DateTime createdAt;
+  DateTime lastLogin;
+  Boolean active;
+
+  // Association: one user owns many pets
+  1 -- * Pet pets;
+}
+
+// Abstract pet base class — OOP Abstraction
+abstract class Pet {
   Integer id;
   String name;
   String species;
@@ -12,126 +55,173 @@ class Pet {
   String gender;
   Double weight;
   String notes;
+
+  // Abstract methods — OOP Polymorphism
   abstract String makeSound();
   abstract String getIconName();
+
+  // Concrete helper methods
+  Integer getAge();
+  String getAgeString();
+
+  // Associations
+  1 -- * Reminder reminders;
+  1 -- * MedicalRecord medicalRecords;
+
+  // State machine: Pet persistence lifecycle
+  petStatus {
+    Transient {
+      save() / { /* Repository.save(this) */ } -> Persistent;
+    }
+    Persistent {
+      update() / { /* Repository.update(this) */ } -> Updated;
+      delete() / { /* Repository.delete(this) */ } -> Deleted;
+    }
+    Updated {
+      update() / { /* Repository.update(this) */ } -> Updated;
+      delete() / { /* Repository.delete(this) */ } -> Deleted;
+    }
+    Deleted {
+      // Terminal state — removed from repository
+    }
+  }
 }
 
+// Concrete pet subclasses — OOP Inheritance
 class Dog {
   isA Pet;
   String breed;
-  String makeSound() { return "Hav Hav!"; }
-  String getIconName() { return "dog.png"; }
+  Boolean trained;
 }
 
 class Cat {
   isA Pet;
-  Boolean isIndoor;
-  String makeSound() { return "Miyav!"; }
-  String getIconName() { return "cat.png"; }
+  String breed;
+  Boolean indoor;
 }
 
 class Bird {
   isA Pet;
   Boolean canFly;
-  String makeSound() { return "Cik Cik!"; }
-  String getIconName() { return "bird.png"; }
 }
 
-class Reminder {
-  abstract;
-  isA Serializable;
+// Abstract reminder base class — OOP Abstraction
+abstract class Reminder {
   Integer id;
   Integer petId;
+  String petName;
   DateTime scheduledTime;
   Boolean completed;
   String description;
   String priority;
-  abstract Boolean validate();
+  Boolean recurring;
+  String recurrencePattern;
+
+  // Abstract methods — OOP Polymorphism
   abstract String getReminderType();
+  abstract Boolean validate();
+  abstract String getSummary();
+
+  // Concrete helper methods
+  Boolean isOverdue();
+  String getFormattedTime();
+
+  // State machine: Reminder lifecycle
+  reminderStatus {
+    Created {
+      schedule() / { /* set scheduledTime */ } -> Scheduled;
+    }
+    Scheduled {
+      entry / { /* waiting for scheduled time */ }
+      dueSoon() -> DueSoon;
+      complete() / { /* setCompleted(true) */ } -> Completed;
+      edit() / { /* update fields */ } -> Scheduled;
+    }
+    DueSoon {
+      entry / { /* notify observers about upcoming reminder */ }
+      pastDue() -> Overdue;
+      complete() / { /* setCompleted(true) */ } -> Completed;
+    }
+    Overdue {
+      entry / { /* EventManager.notify(REMINDER_OVERDUE) */ }
+      complete() / { /* setCompleted(true) */ } -> Completed;
+      reschedule() / { /* update scheduledTime */ } -> Scheduled;
+    }
+    Completed {
+      entry / { /* EventManager.notify(REMINDER_COMPLETED) */ }
+      remove() -> Deleted;
+    }
+    Deleted {
+      entry / { /* repository.delete(id) */ }
+      // Terminal state
+    }
+  }
 }
 
+// Concrete reminder subclasses — OOP Inheritance + Polymorphism
 class FeedingReminder {
   isA Reminder;
   String foodType;
-  Double amount;
-  String getReminderType() { return "FEEDING"; }
+  Double portionGrams;
+  Boolean includesWaterChange;
 }
 
 class MedicationReminder {
   isA Reminder;
   String medicationName;
-  String dosage;
-  String getReminderType() { return "MEDICATION"; }
+  Double dosage;
+  String dosageUnit;
+  Boolean prescribed;
+  String veterinarianName;
 }
 
 class VetAppointment {
   isA Reminder;
-  String vetName;
-  String clinic;
-  String getReminderType() { return "VET_APPOINTMENT"; }
+  String veterinarianName;
+  String clinicName;
+  String reason;
+  Double estimatedCost;
+  Boolean confirmed;
+  String clinicPhone;
 }
 
 class GroomingReminder {
   isA Reminder;
   String groomingType;
-  String getReminderType() { return "GROOMING"; }
+  Boolean professional;
+  String groomerName;
 }
 
 class ExerciseReminder {
   isA Reminder;
-  Integer durationMinutes;
   String exerciseType;
-  String getReminderType() { return "EXERCISE"; }
+  Integer durationMinutes;
+  Double distanceKm;
 }
 
+// Medical record — Composition with Pet
 class MedicalRecord {
-  isA Serializable;
   Integer id;
   Integer petId;
+  String petName;
   Date recordDate;
   String recordType;
   String diagnosis;
   String treatment;
-  String veterinarian;
+  String veterinarianName;
+  Double cost;
+  Date nextCheckDate;
+  String notes;
+  String vaccineName;
+
+  String getFormattedDate();
 }
 
-class User {
-  isA Serializable;
-  Integer id;
-  String username;
-  String passwordHash;
-  String email;
-}
+// ────────────────────────────────────────────────────────────
+// REPOSITORY PATTERN
+// ────────────────────────────────────────────────────────────
 
-// ── Associations ──
-
-association {
-  1 User owner -- * Pet ownedPets;
-}
-
-association {
-  1 Pet pet -- * Reminder reminders;
-}
-
-association {
-  1 Pet pet -- * MedicalRecord medicalHistory;
-}
-
-// ── Observer Pattern ──
-
-interface PetReminderObserver {
-  void onEvent(String eventType, Object data);
-}
-
-class EventManager {
-  singleton;
-  void subscribe(String eventType, PetReminderObserver observer);
-  void unsubscribe(String eventType, PetReminderObserver observer);
-  void notify(String eventType, Object data);
-}
-
-// ── Repository Pattern ──
-
+// Generic CRUD interface
 interface IRepository {
   Integer save(Object entity);
   Object findById(Integer id);
@@ -143,20 +233,78 @@ interface IRepository {
   void close();
 }
 
+// Repository implementations
+class BinaryRepository {
+  isA IRepository;
+  String directory;
+  String entityName;
+}
+
+abstract class SqliteRepository {
+  isA IRepository;
+  // Uses JDBC Connection for SQLite
+}
+
+abstract class MySqlRepository {
+  isA IRepository;
+  // Uses JDBC Connection for MySQL via Docker Compose
+}
+
+class PetSqliteRepository { isA SqliteRepository; }
+class ReminderSqliteRepository { isA SqliteRepository; }
+class UserSqliteRepository { isA SqliteRepository; }
+class MedicalRecordSqliteRepository { isA SqliteRepository; }
+
+class PetMySqlRepository { isA MySqlRepository; }
+class ReminderMySqlRepository { isA MySqlRepository; }
+class UserMySqlRepository { isA MySqlRepository; }
+class MedicalRecordMySqlRepository { isA MySqlRepository; }
+
+// Factory Method — Singleton
 class RepositoryFactory {
   singleton;
-  depend StorageConfig;
+  lazy String binaryDir;
+
   static IRepository createPetRepository();
   static IRepository createReminderRepository();
   static IRepository createUserRepository();
   static IRepository createMedicalRecordRepository();
+
+  // Dependency on StorageConfig
+  0..1 -- 1 StorageConfig;
 }
 
-// ── Service Layer ──
+// ────────────────────────────────────────────────────────────
+// OBSERVER PATTERN
+// ────────────────────────────────────────────────────────────
+
+// Observer interface
+interface PetReminderObserver {
+  void onEvent(String eventType, Object data);
+}
+
+// Singleton Subject — EventManager
+class EventManager {
+  singleton;
+
+  void subscribe(String eventType, PetReminderObserver listener);
+  void unsubscribe(String eventType, PetReminderObserver listener);
+  void unsubscribeAll(PetReminderObserver observer);
+  void notifyObservers(String eventType, Object data);
+  Integer getObserverCount(String eventType);
+  void clearAll();
+
+  // Association: EventManager manages many observers
+  * -- * PetReminderObserver observers;
+}
+
+// ────────────────────────────────────────────────────────────
+// SERVICE LAYER
+// ────────────────────────────────────────────────────────────
 
 class PetService {
-  depend IRepository;
-  depend EventManager;
+  0..1 -- 1 IRepository petRepository;
+
   Pet addPet(Pet pet);
   Pet getPetById(Integer id);
   Pet[] getAllPets();
@@ -164,26 +312,79 @@ class PetService {
   void deletePet(Integer id);
   Pet[] searchByName(String name);
   Pet[] filterBySpecies(String species);
+  Integer getPetCount();
+  void close();
 }
 
 class ReminderService {
-  depend IRepository;
-  depend EventManager;
+  0..1 -- 1 IRepository reminderRepository;
+
   Reminder addReminder(Reminder reminder);
-  Reminder[] getRemindersForPet(Integer petId);
-  void completeReminder(Integer id);
+  Reminder getReminderById(Integer id);
+  Reminder[] getAllReminders();
+  Reminder[] getPendingReminders();
+  Reminder[] getOverdueReminders();
+  Reminder[] getRemindersByPetId(Integer petId);
+  void markCompleted(Integer id);
+  void updateReminder(Reminder reminder);
+  void deleteReminder(Integer id);
+  Integer getReminderCount();
+  void close();
 }
 
 class MedicalRecordService {
-  depend IRepository;
+  0..1 -- 1 IRepository medicalRecordRepository;
+
   MedicalRecord addRecord(MedicalRecord record);
-  MedicalRecord[] getRecordsForPet(Integer petId);
+  MedicalRecord[] getAllRecords();
+  MedicalRecord[] getRecordsByPetId(Integer petId);
+  void deleteRecord(Integer id);
+  void close();
 }
 
-// ── Config ──
+// ────────────────────────────────────────────────────────────
+// CONFIGURATION
+// ────────────────────────────────────────────────────────────
 
 class StorageConfig {
-  String activeBackend;
+  lazy String activeBackend;
+
   static String getActiveBackend();
   static void setActiveBackend(String type);
+}
+
+// ────────────────────────────────────────────────────────────
+// APPLICATION LAYER
+// ────────────────────────────────────────────────────────────
+
+class ConsoleApp {
+  Boolean running;
+
+  void start();
+  void showMainMenu();
+  void showPetsMenu();
+  void showRemindersMenu();
+  void showVetMenu();
+  void showMedicalMenu();
+  void showSettingsMenu();
+  void handleStorageSwitch(String choice);
+  void exitApp();
+
+  // Dependencies
+  0..1 -- 1 PetService;
+  0..1 -- 1 ReminderService;
+  0..1 -- 1 MedicalRecordService;
+  0..1 -- 1 StorageConfig;
+}
+
+// ────────────────────────────────────────────────────────────
+// EXCEPTION HIERARCHY
+// ────────────────────────────────────────────────────────────
+
+class ServiceException {
+  isA RuntimeException;
+}
+
+class RepositoryException {
+  isA RuntimeException;
 }

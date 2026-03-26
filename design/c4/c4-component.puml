@@ -7,47 +7,57 @@ title Pet Care Reminder System — Component Diagram
 
 Container_Boundary(app, "Pet Care Reminder Application") {
 
-    Component(consoleApp, "ConsoleApp", "Java Class", "Konsol tabanlı ana uygulama.\nMenü sistemi ve kullanıcı etkileşimi.")
-    Component(mainFrame, "MainFrame", "Java Swing JFrame", "GUI ana penceresi.\nNavPanel, DashboardPanel,\nPetsPanel, RemindersPanel vb.")
+    Component(consoleApp, "ConsoleApp", "Java Class", "Main console application with keyboard-navigable menus for Pet, Reminder, Vet, Medical, and Settings screens.")
+    Component(mainFrame, "MainFrame", "Java Swing JFrame", "Main GUI window containing NavPanel, DashboardPanel, PetsPanel, RemindersPanel, MedicalPanel, VetPanel, and SettingsPanel.")
 
-    Component(petService, "PetService", "Java Class", "Pet CRUD iş mantığı.\nDoğrulama, arama, filtreleme.")
-    Component(reminderService, "ReminderService", "Java Class", "Hatırlatıcı iş mantığı.\nZamanlama, tamamlama.")
-    Component(medicalService, "MedicalRecordService", "Java Class", "Tıbbi kayıt iş mantığı.")
+    Component(petService, "PetService", "Java Class", "Business logic for Pet CRUD operations. Validates input and publishes events via EventManager.")
+    Component(reminderService, "ReminderService", "Java Class", "Business logic for Reminder CRUD. Handles scheduling, completion, and overdue detection.")
+    Component(medicalService, "MedicalRecordService", "Java Class", "Business logic for medical record management. CRUD for vaccinations, checkups, surgeries.")
+    Component(userService, "UserService", "Java Class", "Handles user authentication: login, register, findByUsername. Password hashing for security.")
 
-    Component(eventMgr, "EventManager", "Singleton", "Observer Pattern Subject.\nOlay yayını ve observer yönetimi.")
-    Component(observer, "PetReminderObserver", "Interface", "Observer arayüzü.\nonEvent(EventType, Object)")
+    Component(eventMgr, "EventManager", "Singleton Pattern", "Observer Pattern subject. Manages event subscriptions and dispatches notifications to all registered observers.")
+    Component(observer, "PetReminderObserver", "Interface", "Observer interface with onEvent(EventType, Object) callback method.")
 
-    Component(iRepo, "IRepository<T>", "Interface", "Generic CRUD arayüzü.\nsave, findById, findAll,\nupdate, delete, count, close")
-    Component(repoFactory, "RepositoryFactory", "Factory Pattern", "Aktif backend'e göre\nrepository nesnesi üretir.")
-    Component(binaryRepo, "BinaryRepository<T>", "Java Class", "Java Serialization ile\nbinary dosya I/O.")
-    Component(sqliteRepo, "SqliteRepository<T>", "Abstract Class", "SQLite JDBC bağlantısı.\nPet/Reminder/User/Medical alt sınıfları.")
-    Component(mysqlRepo, "MySqlRepository<T>", "Abstract Class", "MySQL JDBC bağlantısı.\nPet/Reminder/User/Medical alt sınıfları.")
+    Component(iRepo, "IRepository<T>", "Interface", "Generic CRUD interface: save, findById, findAll, update, delete, deleteAll, count, close.")
+    Component(repoFactory, "RepositoryFactory", "Factory Method Pattern", "Creates the appropriate repository implementation based on the active StorageType configuration. Supports reinitialize() for backend switching.")
+    Component(binaryRepo, "BinaryRepository<T>", "Java Class", "Stores entities as serialized binary .dat files using Java ObjectOutputStream.")
+    Component(sqliteRepo, "SqliteRepository<T>", "Abstract Class", "SQLite JDBC-based storage with concrete subclasses for Pet, Reminder, User, and MedicalRecord.")
+    Component(mysqlRepo, "MySqlRepository<T>", "Abstract Class", "MySQL JDBC-based storage via Docker Compose with concrete subclasses for each entity type.")
 
-    Component(storageConfig, "StorageConfig", "Java Class", "Aktif storage backend\nyapılandırması. Runtime switch.")
+    Component(storageConfig, "StorageConfig", "Java Class", "Holds the active storage backend setting. Supports runtime switching between Binary, SQLite, and MySQL. Persists to storage.properties.")
 
-    Component(models, "Domain Models", "Java Classes", "Pet (abstract), Dog, Cat, Bird,\nReminder (abstract), FeedingReminder,\nMedicationReminder, VetAppointment,\nGroomingReminder, ExerciseReminder,\nMedicalRecord, User")
+    Component(exceptions, "Exception Hierarchy", "Java Classes", "PetReminderException (base), ValidationException, StorageException, ConnectionException, EntityNotFoundException, PetNotFoundException, ReminderNotFoundException, ServiceException.")
+
+    Component(models, "Domain Models", "Java Classes", "Pet (abstract), Dog, Cat, Bird, Reminder (abstract), FeedingReminder, MedicationReminder, VetAppointment, GroomingReminder, ExerciseReminder, MedicalRecord, User.")
 }
 
-Rel(consoleApp, petService, "Kullanır")
-Rel(consoleApp, reminderService, "Kullanır")
-Rel(mainFrame, petService, "Kullanır")
-Rel(mainFrame, reminderService, "Kullanır")
-Rel(mainFrame, medicalService, "Kullanır")
+ContainerDb(binaryStore, "Binary Storage", "Java Serialization", "Local .dat files in data/binary/")
+ContainerDb(sqliteDb, "SQLite Database", "SQLite 3 / JDBC", "petreminder.db")
+ContainerDb(mysqlDb, "MySQL Database", "MySQL 8 / Docker", "Port 3306")
+
+Rel(consoleApp, petService, "Uses")
+Rel(consoleApp, reminderService, "Uses")
+Rel(consoleApp, medicalService, "Uses")
+Rel(consoleApp, userService, "Uses")
+Rel(mainFrame, petService, "Uses")
+Rel(mainFrame, reminderService, "Uses")
+Rel(mainFrame, medicalService, "Uses")
 Rel(mainFrame, observer, "Implements")
 
-Rel(petService, iRepo, "CRUD")
-Rel(reminderService, iRepo, "CRUD")
-Rel(medicalService, iRepo, "CRUD")
+Rel(petService, iRepo, "CRUD operations")
+Rel(reminderService, iRepo, "CRUD operations")
+Rel(medicalService, iRepo, "CRUD operations")
+Rel(userService, iRepo, "CRUD operations")
 
-Rel(petService, eventMgr, "notify()")
-Rel(reminderService, eventMgr, "notify()")
+Rel(petService, eventMgr, "Publishes events")
+Rel(reminderService, eventMgr, "Publishes events")
 
-Rel(eventMgr, observer, "onEvent()")
+Rel(eventMgr, observer, "Notifies via onEvent()")
 
 Rel(repoFactory, binaryRepo, "Creates")
 Rel(repoFactory, sqliteRepo, "Creates")
 Rel(repoFactory, mysqlRepo, "Creates")
-Rel(repoFactory, storageConfig, "getActiveBackend()")
+Rel(repoFactory, storageConfig, "Reads active backend")
 
 Rel(binaryRepo, iRepo, "Implements")
 Rel(sqliteRepo, iRepo, "Implements")
@@ -55,5 +65,14 @@ Rel(mysqlRepo, iRepo, "Implements")
 
 Rel(petService, models, "Uses")
 Rel(reminderService, models, "Uses")
+
+Rel(petService, exceptions, "Throws PetNotFoundException, ValidationException")
+Rel(reminderService, exceptions, "Throws ReminderNotFoundException")
+Rel(binaryRepo, exceptions, "Throws StorageException")
+Rel(mysqlRepo, exceptions, "Throws ConnectionException")
+
+Rel(binaryRepo, binaryStore, "Reads/Writes")
+Rel(sqliteRepo, sqliteDb, "Reads/Writes")
+Rel(mysqlRepo, mysqlDb, "Reads/Writes")
 
 @enduml

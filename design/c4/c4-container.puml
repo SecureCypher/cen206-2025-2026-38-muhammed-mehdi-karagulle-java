@@ -5,33 +5,41 @@ LAYOUT_WITH_LEGEND()
 
 title Pet Care Reminder System — Container Diagram
 
-Person(user, "Pet Owner", "Evcil hayvan sahibi")
+Person(user, "Pet Owner", "Manages pets and care schedules.")
+Person(guest, "Guest User", "Read-only access without registration.")
 
 System_Boundary(petreminder, "Pet Care Reminder System") {
-    Container(consoleApp, "Console Application", "Java / Maven", "Konsol tabanlı kullanıcı arayüzü.\nKlavye navigasyonu ile menü sistemi.")
-    Container(guiApp, "GUI Application", "Java Swing", "Grafik kullanıcı arayüzü.\nMainFrame, paneller ve diyaloglar.")
-    Container(serviceLayer, "Service Layer", "Java", "İş mantığı katmanı.\nPetService, ReminderService,\nMedicalRecordService.")
-    Container(repoLayer, "Repository Layer", "Java", "Veri erişim katmanı.\nIRepository<T> arayüzü ile\nçoklu backend desteği.")
-    Container(observerSys, "Observer System", "Java", "Olay yönetim sistemi.\nEventManager (Singleton),\nPetReminderObserver arayüzü.")
+    Container(consoleApp, "Console Application", "Java / Maven", "Text-based user interface with keyboard-navigable menus for all CRUD operations.")
+    Container(guiApp, "GUI Application", "Java Swing", "Graphical user interface with panels for Dashboard, Pets, Reminders, Medical Records, and Settings.")
+    Container(serviceLayer, "Service Layer", "Java", "Business logic layer containing PetService, ReminderService, MedicalRecordService, and UserService.")
+    Container(repoLayer, "Repository Layer", "Java", "Data access layer implementing IRepository<T> interface with Factory Method pattern for backend switching.")
+    Container(observerSys, "Observer System", "Java", "Event management system using Singleton EventManager and PetReminderObserver interface.")
+    Container(configLayer, "Config Layer", "Java", "Manages the active storage backend via StorageConfig and StorageType enum. Persisted to storage.properties. Retained across restarts.")
 }
 
-ContainerDb(binaryStore, "Binary Storage", "Java Serialization", "data/binary/ dizininde\n.dat dosyaları")
-ContainerDb(sqliteDb, "SQLite Database", "SQLite 3", "petreminder.db\ngömülü veritabanı")
-ContainerDb(mysqlDb, "MySQL Database", "MySQL 8 / Docker", "Docker Compose ile\nçalışan veritabanı")
+ContainerDb(binaryStore, "Binary Storage", "Java Serialization", "Local .dat files in data/binary/ directory.")
+ContainerDb(sqliteDb, "SQLite Database", "SQLite 3 / JDBC", "Embedded database file: petreminder.db")
+ContainerDb(mysqlDb, "MySQL Database", "MySQL 8 / Docker Compose", "Containerized relational database on port 3306.")
 
-Rel(user, consoleApp, "Kullanır", "Konsol")
-Rel(user, guiApp, "Kullanır", "Swing GUI")
+Rel(user, consoleApp, "Uses", "Console / Terminal")
+Rel(user, guiApp, "Uses", "Swing GUI")
+Rel(guest, consoleApp, "Uses (read-only)", "Console / Terminal")
+Rel(guest, guiApp, "Uses (read-only)", "Swing GUI")
 
-Rel(consoleApp, serviceLayer, "Çağırır")
-Rel(guiApp, serviceLayer, "Çağırır")
+Rel(consoleApp, serviceLayer, "Calls")
+Rel(guiApp, serviceLayer, "Calls")
 
-Rel(serviceLayer, repoLayer, "CRUD işlemleri")
-Rel(serviceLayer, observerSys, "notify()")
+Rel(consoleApp, observerSys, "Implements PetReminderObserver", "onEvent()")
 
-Rel(observerSys, guiApp, "onEvent()")
+Rel(serviceLayer, repoLayer, "CRUD operations")
+Rel(serviceLayer, observerSys, "Publishes events via notify()")
 
-Rel(repoLayer, binaryStore, "Okur/Yazar", "Serialization")
-Rel(repoLayer, sqliteDb, "Okur/Yazar", "JDBC")
-Rel(repoLayer, mysqlDb, "Okur/Yazar", "JDBC")
+Rel(observerSys, guiApp, "Delivers events via onEvent()")
+
+Rel(repoLayer, configLayer, "Reads active backend", "StorageConfig.getActiveBackend()")
+
+Rel(repoLayer, binaryStore, "Reads/Writes", "Java Serialization")
+Rel(repoLayer, sqliteDb, "Reads/Writes", "JDBC")
+Rel(repoLayer, mysqlDb, "Reads/Writes", "JDBC MySQL Connector")
 
 @enduml

@@ -1,0 +1,65 @@
+@startuml SeqCreateEntry
+title Add New Pet — Sequence Diagram
+
+actor "Pet Owner" as User
+boundary "ConsoleApp" as UI
+control "PetService" as PS
+entity "Dog\n<<extends Pet>>" as PetObj
+database "IRepository<Pet>\n(injected via constructor)" as Repo
+control "EventManager\n<<Singleton>>" as Event
+participant "DashboardPanel\n<<Observer>>" as Dash
+
+User -> UI : Selects "Add New Pet"
+activate UI
+
+UI -> User : Prompt for species (Dog/Cat/Bird)
+User -> UI : Enters "Dog"
+
+UI -> User : Prompt for name, birthDate, breed, gender, weight
+User -> UI : Enters all pet details
+
+UI -> PetObj ** : new Dog(name, birthDate, ownerId, breed, trained)
+activate PetObj
+PetObj --> UI : dog instance
+deactivate PetObj
+
+UI -> PS : addPet(dog)
+activate PS
+
+PS -> PS : validatePet(dog)\n- name must not be empty\n- birthDate must not be in future
+
+alt Validation Passed
+
+    PS -> Repo : save(dog)
+    activate Repo
+    Repo -> Repo : INSERT INTO pets VALUES(...)
+    Repo --> PS : assigned id
+    deactivate Repo
+
+    PS -> Event : notify(PET_ADDED, dog)
+    activate Event
+    Event -> Dash : onEvent(PET_ADDED, dog)
+    activate Dash
+    Dash -> Dash : refreshPetTable()
+    Dash --> Event : done
+    deactivate Dash
+    Event --> PS : done
+    deactivate Event
+
+    PS --> UI : returns saved Pet
+    deactivate PS
+
+    UI -> User : Display "Pet added successfully!"
+
+else Validation Failed
+
+    PS --> UI : throws ValidationException
+    deactivate PS
+
+    UI -> User : Display "Validation failed:\n[fieldName] is invalid."
+
+end
+
+deactivate UI
+
+@enduml

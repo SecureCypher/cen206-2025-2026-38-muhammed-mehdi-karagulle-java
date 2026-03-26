@@ -1,0 +1,48 @@
+@startuml ActivityOverdueCheck
+title Overdue Reminder Check Flow
+
+start
+
+:System triggers overdue check;
+
+:ReminderService.getOverdueReminders();
+
+:Query all reminders from repository;
+
+:Filter reminders where:\nscheduledTime < now()\ncompleted == false;
+
+if (Overdue reminders found?) then (yes)
+
+    :EventManager.notify(REMINDER_OVERDUE);
+
+    :Display overdue count on Dashboard;
+
+    while (More overdue reminders?) is (yes)
+        :Get next overdue reminder;
+        :Display alert:\n"Overdue: [petName] - [reminderType]"\n"Scheduled: [formattedTime]";
+
+        switch (User Action?)
+        case (Mark Completed)
+            :ReminderService.markCompleted(id);
+            :EventManager.notify(REMINDER_COMPLETED);
+            :Display "Reminder completed.";
+        case (Reschedule)
+            :Prompt for new scheduledTime;
+            :ReminderService.updateReminder(r);
+            :Display "Reminder rescheduled.";
+        case (Skip)
+            :Continue to next reminder;
+        endswitch
+    endwhile (no)
+
+    :Dashboard updates counts;
+
+else (no)
+    :Display "No overdue reminders.";
+endif
+
+:Return to Main Menu;
+
+stop
+
+@enduml

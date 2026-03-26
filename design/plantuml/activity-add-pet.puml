@@ -1,0 +1,41 @@
+@startuml ActivityAddPet
+title Add New Pet Flow
+
+start
+
+:Display Pet Management Menu;
+:User selects "Add New Pet";
+
+:Prompt for pet species;
+
+switch (Species?)
+case (Dog)
+    :Prompt for breed;
+    :Prompt for trained status;
+case (Cat)
+    :Prompt for breed;
+    :Prompt for indoor status;
+case (Bird)
+    :Prompt for canFly status;
+endswitch
+
+:Prompt for common fields:\nname, birthDate, gender, weight, notes;
+
+:Create Pet object;
+
+:PetService.validatePet();
+
+if (Validation passed?) then (yes)
+    :PetRepository.save(pet);
+    :EventManager.notify(PET_ADDED);
+    :Display "Pet added successfully!";
+else (no)
+    :Display validation message;
+    :Return to input form;
+endif
+
+:Return to Pet Management Menu;
+
+stop
+
+@enduml

@@ -1,119 +1,298 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://planner.gnome.org/dtd/mrproject/0.7">
-  <properties>
-    <property name="project_name" type="text" owner="projectlibre" label="Proje Adı:" value="Pet Care Reminder System — CEN206 Term Project"/>
-    <property name="company" type="text" owner="projectlibre" label="Şirket/Üniversite:" value="Recep Tayyip Erdoğan Üniversitesi"/>
-    <property name="manager" type="text" owner="projectlibre" label="Proje Yöneticisi:" value="Muhammed Mehdi Karagülle"/>
-    <property name="project_start" type="date" owner="projectlibre" label="Başlangıç:" value="20250301T000000Z"/>
-  </properties>
+<project name="Pet Care Reminder System" company="CEN206 - Group 38" manager="Mehmed Mehdi Karagulle" xmlns="http://schemas.microsoft.com/project">
+  <title>Pet Care Reminder System</title>
+  <subject>CEN206 Object-Oriented Programming Term Project</subject>
+  <author>Mehmed Mehdi Karagulle, Ibrahim Demirci, Zumre Uykun</author>
+  <creation_date>2026-03-05T00:00:00</creation_date>
+  <last_saved>2026-03-15T00:00:00</last_saved>
+  <schedule_from_start>true</schedule_from_start>
+  <start_date>2026-03-05T00:00:00</start_date>
+  <finish_date>2026-05-29T00:00:00</finish_date>
+  <calendar>Standard</calendar>
 
-  <phases>
-    <phase name="Midterm Phase - Console Application"/>
-    <phase name="Final Phase - GUI Extension"/>
-  </phases>
-
-  <calendars>
-    <day-type id="0" name="Çalışma günü" description="Normal iş günü"/>
-    <day-type id="1" name="Tatil" description="Çalışma yok"/>
-    <calendar id="1" name="Standart" default-week="0123456" weekday="0000011">
-      <default-week mon="0" tue="0" wed="0" thu="0" fri="0" sat="1" sun="1"/>
-    </calendar>
-  </calendars>
-
-  <tasks>
-    <!-- ===== MIDTERM PHASE ===== -->
-    <task id="1" name="Midterm Phase — Console Application" note="" work="1814400" start="20250301T080000Z" finish="20250325T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-      <task id="2" name="Proje Kurulumu ve Maven Yapılandırması" note="" work="28800" start="20250301T080000Z" finish="20250301T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="100"/>
-      </task>
-      <task id="3" name="Veri Modeli Tasarımı (Pet, Reminder, User, vb.)" note="" work="57600" start="20250302T080000Z" finish="20250303T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="50"/>
-        <resource-usage resource="2" units="50"/>
-      </task>
-      <task id="4" name="IRepository Pattern Implementasyonu" note="" work="57600" start="20250304T080000Z" finish="20250305T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="100"/>
-      </task>
-      <task id="5" name="BinaryRepository — Serializable File I/O" note="" work="28800" start="20250306T080000Z" finish="20250306T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="2" units="100"/>
-      </task>
-      <task id="6" name="SqliteRepository — SQLite via JDBC" note="" work="57600" start="20250307T080000Z" finish="20250308T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="50"/>
-        <resource-usage resource="2" units="50"/>
-      </task>
-      <task id="7" name="MySqlRepository — MySQL via Docker Compose" note="" work="57600" start="20250309T080000Z" finish="20250310T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="100"/>
-      </task>
-      <task id="8" name="RepositoryFactory — Runtime Backend Switching" note="" work="28800" start="20250311T080000Z" finish="20250311T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="2" units="100"/>
-      </task>
-      <task id="9" name="Service Katmanı (PetService, ReminderService, vb.)" note="" work="57600" start="20250312T080000Z" finish="20250313T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="50"/>
-        <resource-usage resource="3" units="50"/>
-      </task>
-      <task id="10" name="Console UI — Klavye Navigasyonu (Up/Down/Tab)" note="" work="86400" start="20250314T080000Z" finish="20250316T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="100"/>
-      </task>
-      <task id="11" name="JUnit 5 Unit Testleri — %100 Coverage" note="" work="86400" start="20250317T080000Z" finish="20250319T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="2" units="50"/>
-        <resource-usage resource="3" units="50"/>
-      </task>
-      <task id="12" name="Tasarım Belgeleri (PlantUML, C4, UMPLE, Figma)" note="" work="86400" start="20250320T080000Z" finish="20250322T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="33"/>
-        <resource-usage resource="2" units="33"/>
-        <resource-usage resource="3" units="34"/>
-      </task>
-      <task id="13" name="Doxygen Dokümantasyon — PDF Üretimi" note="" work="28800" start="20250323T080000Z" finish="20250323T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="100"/>
-      </task>
-      <task id="14" name="Midterm Teslim — GitHub Release midterm-v1.0.0" note="" work="28800" start="20250325T080000Z" finish="20250325T170000Z" percent-complete="100" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="50"/>
-        <resource-usage resource="2" units="50"/>
-      </task>
-    </task>
-
-    <!-- ===== FINAL PHASE ===== -->
-    <task id="15" name="Final Phase — GUI Extension" note="" work="2160000" start="20250326T080000Z" finish="20250530T170000Z" percent-complete="10" priority="0" type="normal" scheduling="fixed-work">
-      <task id="16" name="GUI Tasarımı — Figma Wireframe to Swing" note="" work="172800" start="20250326T080000Z" finish="20250329T170000Z" percent-complete="10" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="50"/>
-        <resource-usage resource="3" units="50"/>
-      </task>
-      <task id="17" name="MainFrame ve Panel Bileşenleri (FlatLaf)" note="" work="259200" start="20250330T080000Z" finish="20250403T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="100"/>
-      </task>
-      <task id="18" name="GUI — Pets, Reminders, Medical, Vet Panels" note="" work="259200" start="20250404T080000Z" finish="20250408T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="2" units="50"/>
-        <resource-usage resource="3" units="50"/>
-      </task>
-      <task id="19" name="Strict MVC Integration — lib unchanged" note="" work="172800" start="20250409T080000Z" finish="20250412T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="100"/>
-      </task>
-      <task id="20" name="CI/CD — GitHub Actions Pipeline" note="" work="86400" start="20250413T080000Z" finish="20250414T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="2" units="100"/>
-      </task>
-      <task id="21" name="Refactoring — 3 Code Smell Düzeltmesi" note="" work="86400" start="20250415T080000Z" finish="20250416T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="50"/>
-        <resource-usage resource="3" units="50"/>
-      </task>
-      <task id="22" name="Final Testler ve Coverage Doğrulaması" note="" work="172800" start="20250417T080000Z" finish="20250420T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="33"/>
-        <resource-usage resource="2" units="33"/>
-        <resource-usage resource="3" units="34"/>
-      </task>
-      <task id="23" name="Final Rapor ve Sunum Hazırlığı" note="" work="172800" start="20250421T080000Z" finish="20250424T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="33"/>
-        <resource-usage resource="2" units="33"/>
-        <resource-usage resource="3" units="34"/>
-      </task>
-      <task id="24" name="Final Teslim — GitHub Release final-v2.0.0" note="" work="28800" start="20250530T080000Z" finish="20250530T170000Z" percent-complete="0" priority="0" type="normal" scheduling="fixed-work">
-        <resource-usage resource="1" units="50"/>
-        <resource-usage resource="2" units="50"/>
-      </task>
-    </task>
-  </tasks>
-
+  <!-- ============================================ -->
+  <!-- RESOURCES                                    -->
+  <!-- ============================================ -->
   <resources>
-    <resource id="1" name="Muhammed Mehdi Karagülle" short-name="MMK" email="Muhammedmehdi_karagulle24@gmail.com" type="1" units="0" cost="0" cost-per-use="0" calendar="1"/>
-    <resource id="2" name="Ibrahim Demirci" short-name="ID" email="ibrahim_demirci24@erdogan.edu.tr" type="1" units="0" cost="0" cost-per-use="0" calendar="1"/>
-    <resource id="3" name="Zumre Uykun" short-name="ZU" email="zumre_uykun23@erdogan.edu.tr" type="1" units="0" cost="0" cost-per-use="0" calendar="1"/>
+    <resource id="1">
+      <name>Mehmed Mehdi Karagulle</name>
+      <type>1</type>
+      <role>Developer / Team Lead</role>
+    </resource>
+    <resource id="2">
+      <name>Ibrahim Demirci</name>
+      <type>1</type>
+      <role>Developer</role>
+    </resource>
+    <resource id="3">
+      <name>Zumre Uykun</name>
+      <type>1</type>
+      <role>Developer</role>
+    </resource>
   </resources>
+
+  <!-- ============================================ -->
+  <!-- TASKS (WBS)                                  -->
+  <!-- ============================================ -->
+  <tasks>
+
+    <!-- ========================================== -->
+    <!-- PHASE 1: MIDTERM (2026-03-05 → 2026-03-27) -->
+    <!-- ========================================== -->
+    <task id="1">
+      <name>Phase 1: Midterm - Console Application</name>
+      <type>1</type>
+      <start>2026-03-05T00:00:00</start>
+      <finish>2026-03-27T00:00:00</finish>
+      <milestone>false</milestone>
+
+      <task id="10">
+        <name>Project Selection and Approval</name>
+        <start>2026-03-05T00:00:00</start>
+        <duration>2</duration>
+        <complete>100</complete>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="11">
+        <name>PlantUML Diagrams (Class, Seq, UC, ER)</name>
+        <start>2026-03-07T00:00:00</start>
+        <duration>4</duration>
+        <complete>100</complete>
+        <predecessor>10</predecessor>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="12">
+        <name>C4 Model and UMPLE</name>
+        <start>2026-03-07T00:00:00</start>
+        <duration>3</duration>
+        <complete>100</complete>
+        <predecessor>10</predecessor>
+        <resources><resource id="2"/></resources>
+      </task>
+
+      <task id="13">
+        <name>Activity and State Diagrams</name>
+        <start>2026-03-07T00:00:00</start>
+        <duration>3</duration>
+        <complete>100</complete>
+        <predecessor>10</predecessor>
+        <resources><resource id="3"/></resources>
+      </task>
+
+      <task id="14">
+        <name>Domain Model Layer (Pet, Reminder, User, MedicalRecord)</name>
+        <start>2026-03-11T00:00:00</start>
+        <duration>4</duration>
+        <complete>100</complete>
+        <predecessor>11</predecessor>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="15">
+        <name>Repository Layer (Binary + SQLite + MySQL)</name>
+        <start>2026-03-11T00:00:00</start>
+        <duration>6</duration>
+        <complete>100</complete>
+        <predecessor>12</predecessor>
+        <resources><resource id="2"/></resources>
+      </task>
+
+      <task id="16">
+        <name>Observer Pattern (EventManager)</name>
+        <start>2026-03-11T00:00:00</start>
+        <duration>2</duration>
+        <complete>100</complete>
+        <predecessor>13</predecessor>
+        <resources><resource id="3"/></resources>
+      </task>
+
+      <task id="17">
+        <name>Service Layer (PetService, ReminderService, UserService)</name>
+        <start>2026-03-15T00:00:00</start>
+        <duration>4</duration>
+        <complete>100</complete>
+        <predecessor>14</predecessor>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="18">
+        <name>Exception Hierarchy</name>
+        <start>2026-03-17T00:00:00</start>
+        <duration>2</duration>
+        <complete>100</complete>
+        <predecessor>15</predecessor>
+        <resources><resource id="2"/></resources>
+      </task>
+
+      <task id="19">
+        <name>Console UI Menus (ConsoleApp)</name>
+        <start>2026-03-13T00:00:00</start>
+        <duration>4</duration>
+        <complete>80</complete>
+        <predecessor>16</predecessor>
+        <resources><resource id="3"/></resources>
+      </task>
+
+      <task id="20">
+        <name>Unit Tests Phase 1 (JUnit 5, 100% Coverage)</name>
+        <start>2026-03-19T00:00:00</start>
+        <duration>4</duration>
+        <complete>70</complete>
+        <predecessor>17</predecessor>
+        <predecessor>18</predecessor>
+        <predecessor>19</predecessor>
+        <resources><resource id="1"/><resource id="2"/><resource id="3"/></resources>
+      </task>
+
+      <task id="21">
+        <name>Doxygen Documentation</name>
+        <start>2026-03-23T00:00:00</start>
+        <duration>2</duration>
+        <complete>50</complete>
+        <predecessor>20</predecessor>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="22">
+        <name>Figma Console Wireframes</name>
+        <start>2026-03-10T00:00:00</start>
+        <duration>3</duration>
+        <complete>100</complete>
+        <predecessor>13</predecessor>
+        <resources><resource id="3"/></resources>
+      </task>
+
+      <task id="23">
+        <name>Midterm Report and GitHub Release</name>
+        <start>2026-03-25T00:00:00</start>
+        <duration>2</duration>
+        <complete>30</complete>
+        <predecessor>21</predecessor>
+        <resources><resource id="1"/><resource id="2"/><resource id="3"/></resources>
+      </task>
+
+      <!-- Midterm Milestone -->
+      <task id="29">
+        <name>MIDTERM SUBMISSION (midterm-v1.0.0)</name>
+        <start>2026-03-27T00:00:00</start>
+        <duration>0</duration>
+        <milestone>true</milestone>
+        <predecessor>23</predecessor>
+      </task>
+    </task>
+
+    <!-- ========================================== -->
+    <!-- PHASE 2: FINAL (2026-03-28 → 2026-05-29)  -->
+    <!-- ========================================== -->
+    <task id="2">
+      <name>Phase 2: Final - GUI Extension + MySQL</name>
+      <type>1</type>
+      <start>2026-03-28T00:00:00</start>
+      <finish>2026-05-29T00:00:00</finish>
+      <milestone>false</milestone>
+
+      <task id="30">
+        <name>Figma GUI Wireframes</name>
+        <start>2026-03-28T00:00:00</start>
+        <duration>4</duration>
+        <complete>0</complete>
+        <predecessor>29</predecessor>
+        <resources><resource id="3"/></resources>
+      </task>
+
+      <task id="31">
+        <name>Swing GUI Main Frame</name>
+        <start>2026-04-01T00:00:00</start>
+        <duration>5</duration>
+        <complete>0</complete>
+        <predecessor>30</predecessor>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="32">
+        <name>Swing GUI Panels (Dashboard, Pets, Reminders, Medical, Settings)</name>
+        <start>2026-04-06T00:00:00</start>
+        <duration>5</duration>
+        <complete>0</complete>
+        <predecessor>31</predecessor>
+        <resources><resource id="2"/><resource id="3"/></resources>
+      </task>
+
+      <task id="33">
+        <name>Design Patterns (min 3: Factory, Observer, Singleton)</name>
+        <start>2026-04-11T00:00:00</start>
+        <duration>3</duration>
+        <complete>0</complete>
+        <predecessor>32</predecessor>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="34">
+        <name>Code Smell Refactoring (min 3 smells)</name>
+        <start>2026-04-14T00:00:00</start>
+        <duration>3</duration>
+        <complete>0</complete>
+        <predecessor>33</predecessor>
+        <resources><resource id="2"/></resources>
+      </task>
+
+      <task id="35">
+        <name>draw.io Deployment Diagram</name>
+        <start>2026-04-14T00:00:00</start>
+        <duration>2</duration>
+        <complete>0</complete>
+        <predecessor>33</predecessor>
+        <resources><resource id="3"/></resources>
+      </task>
+
+      <task id="36">
+        <name>Unit Tests Phase 2 (JUnit 5, 80% GUI Coverage)</name>
+        <start>2026-04-17T00:00:00</start>
+        <duration>4</duration>
+        <complete>0</complete>
+        <predecessor>34</predecessor>
+        <predecessor>35</predecessor>
+        <resources><resource id="1"/><resource id="2"/><resource id="3"/></resources>
+      </task>
+
+      <task id="37">
+        <name>GitHub Actions CI/CD Pipeline</name>
+        <start>2026-04-21T00:00:00</start>
+        <duration>3</duration>
+        <complete>0</complete>
+        <predecessor>36</predecessor>
+        <resources><resource id="1"/></resources>
+      </task>
+
+      <task id="38">
+        <name>Update All Diagrams (PlantUML, C4, UMPLE)</name>
+        <start>2026-04-24T00:00:00</start>
+        <duration>3</duration>
+        <complete>0</complete>
+        <predecessor>37</predecessor>
+        <resources><resource id="2"/><resource id="3"/></resources>
+      </task>
+
+      <task id="39">
+        <name>Final Report, Presentation, and Demo Video</name>
+        <start>2026-04-27T00:00:00</start>
+        <duration>4</duration>
+        <complete>0</complete>
+        <predecessor>38</predecessor>
+        <resources><resource id="1"/><resource id="2"/><resource id="3"/></resources>
+      </task>
+
+      <!-- Final Milestone -->
+      <task id="49">
+        <name>FINAL SUBMISSION (final-v2.0.0)</name>
+        <start>2026-05-29T00:00:00</start>
+        <duration>0</duration>
+        <milestone>true</milestone>
+        <predecessor>39</predecessor>
+      </task>
+    </task>
+
+  </tasks>
 </project>

@@ -1,49 +1,68 @@
 @startuml SwitchStorageSequence
-title Storage Backend Değiştirme Akışı
+title Switch Storage Backend — Sequence Diagram
 
-actor "User" as User
-boundary "SettingsPanel" as UI
+actor "Pet Owner" as User
+boundary "ConsoleApp\n(Settings Menu)" as UI
 control "StorageConfig" as Config
 control "RepositoryFactory" as Factory
-database "BinaryRepository" as Binary
-database "SqliteRepository" as Sqlite
-database "MySqlRepository" as MySQL
+database "Old Repository\n(currently active)" as OldRepo
+database "New SqliteRepository" as NewRepo
+control "EventManager\n<<Singleton>>" as Event
+participant "DashboardPanel\n<<Observer>>" as Dash
 
-User -> UI : "Storage Backend" seçer
+User -> UI : Selects "Settings" from Main Menu
 activate UI
+UI -> Config : getActiveBackend()
+Config --> UI : returns current StorageType (e.g. BINARY)
+UI -> UI : Display current backend: "Binary File I/O"
+UI -> User : Show storage options:\n[1] Binary  [2] SQLite  [3] MySQL
+User -> UI : Selects "2" (SQLite)
 
 UI -> Config : setActiveBackend(StorageType.SQLITE)
 activate Config
 Config -> Config : activeBackend = SQLITE
-Config --> UI : backend değiştirildi
+Config --> UI : done
 deactivate Config
 
-UI -> Factory : createPetRepository()
+UI -> Factory : reinitialize()
 activate Factory
 
+note right of Factory
+  **Data migration is NOT performed.**
+  Each backend uses its own
+  independent data store.
+end note
+
+Factory -> OldRepo : close()
+activate OldRepo
+OldRepo -> OldRepo : Close all open\nJDBC connections
+OldRepo --> Factory : done
+deactivate OldRepo
+
 Factory -> Config : getActiveBackend()
-activate Config
 Config --> Factory : SQLITE
-deactivate Config
 
-Factory -> Sqlite ** : new PetSqliteRepository()
-activate Sqlite
-Sqlite -> Sqlite : initializeDatabase()
-Sqlite --> Factory : repository instance
-deactivate Sqlite
+Factory -> NewRepo ** : new PetSqliteRepository()
+activate NewRepo
+NewRepo -> NewRepo : initializeDatabase()\nCREATE TABLE IF NOT EXISTS pets(...)
+NewRepo --> Factory : ready
+deactivate NewRepo
 
-Factory --> UI : IRepository<Pet>
+Factory --> UI : reinitialized
 deactivate Factory
 
-UI -> UI : refreshAllPanels()
-UI -> User : "Backend değiştirildi: SQLite" mesajı
-deactivate UI
+UI -> Event : notify(STORAGE_CHANGED, SQLITE)
+activate Event
+Event -> Dash : onEvent(STORAGE_CHANGED, SQLITE)
+activate Dash
+Dash -> Dash : refreshAllPanels()\nreload data from new backend
+Dash --> Event : done
+deactivate Dash
+Event --> UI : done
+deactivate Event
 
-note right of Factory
-  Factory Pattern:
-  StorageType'a göre
-  Binary / SQLite / MySQL
-  repository döndürür
-end note
+UI -> User : Display "Storage switched to SQLite successfully."
+
+deactivate UI
 
 @enduml

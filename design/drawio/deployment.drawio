@@ -1,0 +1,119 @@
+<mxfile host="app.diagrams.net" modified="2026-03-15T00:00:00.000Z" agent="antigravity" version="24.0.0" type="device">
+  <diagram id="deployment" name="Deployment Diagram">
+    <mxGraphModel dx="1400" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Pet Care Reminder System — Deployment Diagram&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="450" y="20" width="500" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Client Machine Node -->
+        <mxCell id="clientNode" value="&lt;b&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Client Machine&lt;br&gt;(Windows / Linux)" style="shape=mxgraph.deployment.node;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="600" height="500" as="geometry"/>
+        </mxCell>
+
+        <!-- JVM Node -->
+        <mxCell id="jvmNode" value="&lt;b&gt;&amp;lt;&amp;lt;execution environment&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;JDK 11 / 17&lt;br&gt;(JVM)" style="shape=mxgraph.deployment.node;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="120" y="160" width="530" height="390" as="geometry"/>
+        </mxCell>
+
+        <!-- Console App -->
+        <mxCell id="consoleApp" value="&lt;b&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;ConsoleApp.java&lt;br&gt;(Console UI - Scanner)" style="shape=mxgraph.deployment.node;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="150" y="240" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- GUI App -->
+        <mxCell id="guiApp" value="&lt;b&gt;&amp;lt;&amp;lt;artifact&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;MainFrame.java&lt;br&gt;(Swing GUI)" style="shape=mxgraph.deployment.node;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="410" y="240" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Layer -->
+        <mxCell id="serviceLayer" value="&lt;b&gt;Service Layer&lt;/b&gt;&lt;br&gt;PetService&lt;br&gt;ReminderService&lt;br&gt;MedicalRecordService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="240" y="340" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Repository Layer -->
+        <mxCell id="repoLayer" value="&lt;b&gt;Repository Layer&lt;/b&gt;&lt;br&gt;IRepository&amp;lt;T&amp;gt;&lt;br&gt;RepositoryFactory&lt;br&gt;(Binary / SQLite / MySQL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="240" y="440" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Observer System -->
+        <mxCell id="observerSys" value="&lt;b&gt;Observer System&lt;/b&gt;&lt;br&gt;EventManager (Singleton)&lt;br&gt;PetReminderObserver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="480" y="390" width="160" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows inside JVM -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="consoleApp" target="serviceLayer" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="guiApp" target="serviceLayer" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="serviceLayer" target="repoLayer" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="serviceLayer" target="observerSys" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Binary Storage Node -->
+        <mxCell id="binaryNode" value="&lt;b&gt;&amp;lt;&amp;lt;file system&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Binary Storage&lt;br&gt;data/binary/*.dat&lt;br&gt;(Java Serialization)" style="shape=mxgraph.deployment.node;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="100" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- SQLite Node -->
+        <mxCell id="sqliteNode" value="&lt;b&gt;&amp;lt;&amp;lt;database&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;SQLite 3&lt;br&gt;petreminder.db&lt;br&gt;(Embedded / JDBC)" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;size=15;" vertex="1" parent="1">
+          <mxGeometry x="780" y="240" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Docker Node -->
+        <mxCell id="dockerNode" value="&lt;b&gt;&amp;lt;&amp;lt;container&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;Docker Compose&lt;br&gt;(docker-compose.yml)" style="shape=mxgraph.deployment.node;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="750" y="380" width="280" height="200" as="geometry"/>
+        </mxCell>
+
+        <!-- MySQL inside Docker -->
+        <mxCell id="mysqlDb" value="&lt;b&gt;&amp;lt;&amp;lt;database&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;MySQL 8&lt;br&gt;petreminder_db&lt;br&gt;Port: 3306 / JDBC" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;size=15;" vertex="1" parent="1">
+          <mxGeometry x="800" y="450" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- CI/CD Node -->
+        <mxCell id="cicdNode" value="&lt;b&gt;&amp;lt;&amp;lt;CI/CD&amp;gt;&amp;gt;&lt;/b&gt;&lt;br&gt;GitHub Actions&lt;br&gt;(.github/workflows/*.yml)&lt;br&gt;&lt;br&gt;• Maven Build&lt;br&gt;• JUnit 5 Tests&lt;br&gt;• JaCoCo Coverage&lt;br&gt;• Doxygen Docs" style="shape=mxgraph.deployment.node;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="100" width="240" height="180" as="geometry"/>
+        </mxCell>
+
+        <!-- Maven -->
+        <mxCell id="mavenNode" value="&lt;b&gt;Maven&lt;/b&gt;&lt;br&gt;pom.xml&lt;br&gt;(Build + Dependency)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="320" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Doxygen -->
+        <mxCell id="doxygenNode" value="&lt;b&gt;Doxygen&lt;/b&gt;&lt;br&gt;docs/ (PDF)&lt;br&gt;100% Coverage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="410" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- JaCoCo -->
+        <mxCell id="jacocoNode" value="&lt;b&gt;JaCoCo&lt;/b&gt;&lt;br&gt;test-coverage/&lt;br&gt;100% Coverage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="500" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- External Arrows -->
+        <mxCell id="e5" value="Java Serialization" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="repoLayer" target="binaryNode" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="JDBC" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="repoLayer" target="sqliteNode" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="JDBC (MySQL Connector)" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="repoLayer" target="mysqlDb" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="push / PR" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="jvmNode" target="cicdNode" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

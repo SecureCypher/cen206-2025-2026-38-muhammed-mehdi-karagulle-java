@@ -1,0 +1,67 @@
+@startuml ActivityAddReminder
+title Add New Reminder Flow
+
+start
+
+:Display Reminders Menu;
+:User selects "Add New Reminder";
+
+:Display list of pets;
+:User selects a pet by ID;
+
+:Prompt for reminder type;
+
+switch (Reminder Type?)
+case (Feeding)
+    :Prompt for foodType;
+    :Prompt for portionGrams;
+    :Prompt for includesWaterChange;
+    :Create FeedingReminder;
+
+case (Medication)
+    :Prompt for medicationName;
+    :Prompt for dosage and unit;
+    :Prompt for prescribed status;
+    :Prompt for veterinarianName;
+    :Create MedicationReminder;
+
+case (Vet Appointment)
+    :Prompt for veterinarianName;
+    :Prompt for clinicName;
+    :Prompt for clinicPhone;
+    :Prompt for reason;
+    :Prompt for estimatedCost;
+    :Prompt for scheduledTime;
+    :Create VetAppointment;
+
+case (Exercise)
+    :Prompt for exerciseType;
+    :Prompt for durationMinutes;
+    :Prompt for distanceKm;
+    :Create ExerciseReminder;
+
+case (Grooming)
+    :Prompt for groomingType;
+    :Prompt for professional status;
+    :Prompt for groomerName;
+    :Create GroomingReminder;
+endswitch
+
+:Prompt for scheduledTime;
+:Prompt for priority;
+:Prompt for recurring and pattern;
+
+:ReminderService.validateReminder();
+
+if (Validation passed?) then (yes)
+    :ReminderRepository.save(reminder);
+    :EventManager.notify(REMINDER_ADDED);
+    :Display "Reminder added successfully!";
+else (no)
+    :Display validation message;
+    :Return to input form;
+endif
+
+stop
+
+@enduml

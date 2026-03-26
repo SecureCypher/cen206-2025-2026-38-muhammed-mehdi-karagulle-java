@@ -1,8 +1,13 @@
 @startuml PetReminderClassDiagram
 skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam packageFontSize 13
+skinparam linetype ortho
 
-package "com.mehdi.petreminder.model" {
-    abstract class Pet {
+title Pet Care Reminder System — Class Diagram
+
+package "com.mehdi.petreminder.model" #LightYellow {
+    abstract class Pet <<abstract>> {
         - id: int
         - name: String
         - species: String
@@ -16,68 +21,114 @@ package "com.mehdi.petreminder.model" {
         + getAge(): int
         + getAgeString(): String
     }
+
     class Dog extends Pet {
         - breed: String
+        - trained: boolean
         + makeSound(): String
+        + getIconName(): String
     }
+
     class Cat extends Pet {
-        - isIndoor: boolean
+        - breed: String
+        - indoor: boolean
         + makeSound(): String
+        + getIconName(): String
     }
+
     class Bird extends Pet {
         - canFly: boolean
         + makeSound(): String
+        + getIconName(): String
     }
 
-    abstract class Reminder {
+    abstract class Reminder <<abstract>> {
         - id: int
         - petId: int
+        - petName: String
         - scheduledTime: LocalDateTime
         - completed: boolean
         - description: String
         - priority: String
-        + {abstract} validate(): boolean
+        - recurring: boolean
+        - recurrencePattern: String
         + {abstract} getReminderType(): String
-    }
-    class FeedingReminder extends Reminder {
-        - foodType: String
-        - amount: double
-    }
-    class MedicationReminder extends Reminder {
-        - medicationName: String
-        - dosage: String
-    }
-    class VetAppointment extends Reminder {
-        - vetName: String
-        - clinic: String
-    }
-    class GroomingReminder extends Reminder {
-        - groomingType: String
-    }
-    class ExerciseReminder extends Reminder {
-        - durationMinutes: int
-        - exerciseType: String
+        + {abstract} validate(): boolean
+        + {abstract} getSummary(): String
+        + isOverdue(): boolean
+        + getFormattedTime(): String
     }
 
-    class MedicalRecord {
+    class FeedingReminder extends Reminder {
+        - foodType: String
+        - portionGrams: double
+        - includesWaterChange: boolean
+        + getReminderType(): String
+    }
+
+    class MedicationReminder extends Reminder {
+        - medicationName: String
+        - dosage: double
+        - dosageUnit: String
+        - prescribed: boolean
+        - veterinarianName: String
+        + getReminderType(): String
+    }
+
+    class VetAppointment extends Reminder {
+        - veterinarianName: String
+        - clinicName: String
+        - reason: String
+        - estimatedCost: double
+        - confirmed: boolean
+        - clinicPhone: String
+        + getReminderType(): String
+    }
+
+    class GroomingReminder extends Reminder {
+        - groomingType: String
+        - professional: boolean
+        - groomerName: String
+        + getReminderType(): String
+    }
+
+    class ExerciseReminder extends Reminder {
+        - exerciseType: String
+        - durationMinutes: int
+        - distanceKm: double
+        + getReminderType(): String
+    }
+
+    class MedicalRecord <<Serializable>> {
         - id: int
         - petId: int
+        - petName: String
         - recordDate: LocalDate
         - recordType: String
         - diagnosis: String
         - treatment: String
-        - veterinarian: String
+        - veterinarianName: String
+        - cost: double
+        - nextCheckDate: LocalDate
+        - notes: String
+        - vaccineName: String
+        + getFormattedDate(): String
     }
-    class User {
+
+    class User <<Serializable>> {
         - id: int
         - username: String
-        - passwordHash: String
         - email: String
+        - passwordHash: String
+        - fullName: String
+        - createdAt: LocalDateTime
+        - lastLogin: LocalDateTime
+        - active: boolean
     }
 }
 
-package "com.mehdi.petreminder.repository" {
-    interface IRepository<T> {
+package "com.mehdi.petreminder.repository" #LightGreen {
+    interface IRepository<T> <<interface>> {
         + save(entity: T): int
         + findById(id: int): Optional<T>
         + findAll(): List<T>
@@ -87,6 +138,7 @@ package "com.mehdi.petreminder.repository" {
         + count(): int
         + close(): void
     }
+
     class BinaryRepository<T> implements IRepository {
         - directory: String
         - entityName: String
@@ -95,56 +147,64 @@ package "com.mehdi.petreminder.repository" {
     abstract class SqliteRepository<T> implements IRepository {
         # connection: Connection
     }
+
+    abstract class MySqlRepository<T> implements IRepository {
+        # connection: Connection
+    }
+
     class PetSqliteRepository extends SqliteRepository
     class ReminderSqliteRepository extends SqliteRepository
     class UserSqliteRepository extends SqliteRepository
     class MedicalRecordSqliteRepository extends SqliteRepository
 
-    abstract class MySqlRepository<T> implements IRepository {
-        # connection: Connection
-    }
     class PetMySqlRepository extends MySqlRepository
     class ReminderMySqlRepository extends MySqlRepository
     class UserMySqlRepository extends MySqlRepository
     class MedicalRecordMySqlRepository extends MySqlRepository
 
-    class RepositoryFactory {
+    class RepositoryFactory <<Factory Method>> {
+        - {static} BINARY_DIR: String
         + {static} createPetRepository(): IRepository<Pet>
         + {static} createReminderRepository(): IRepository<Reminder>
         + {static} createUserRepository(): IRepository<User>
         + {static} createMedicalRecordRepository(): IRepository<MedicalRecord>
         + {static} getActiveType(): StorageType
+        + {static} reinitialize(): void
     }
-    class RepositoryException
+
+    class RepositoryException <<RuntimeException>>
 }
 
-package "com.mehdi.petreminder.observer" {
-    interface PetReminderObserver {
-        + onEvent(eventType: EventType, data: Object)
+package "com.mehdi.petreminder.observer" #LightBlue {
+    interface PetReminderObserver <<interface>> {
+        + onEvent(eventType: EventType, data: Object): void
     }
+
     enum EventType {
         PET_ADDED
         PET_UPDATED
         PET_DELETED
         REMINDER_ADDED
         REMINDER_COMPLETED
+        REMINDER_UPDATED
         REMINDER_DELETED
         STORAGE_CHANGED
     }
-    class EventManager {
+
+    class EventManager <<Singleton>> {
         - {static} instance: EventManager
         - listeners: Map<EventType, List<PetReminderObserver>>
         + {static} getInstance(): EventManager
-        + subscribe(eventType: EventType, listener: PetReminderObserver)
-        + unsubscribe(eventType: EventType, listener: PetReminderObserver)
-        + unsubscribeAll(observer: PetReminderObserver)
-        + notify(eventType: EventType, data: Object)
-        + getObserverCount(eventType: EventType): int
+        + subscribe(type: EventType, obs: PetReminderObserver): void
+        + unsubscribe(type: EventType, obs: PetReminderObserver): void
+        + unsubscribeAll(obs: PetReminderObserver): void
+        + notify(type: EventType, data: Object): void
+        + getObserverCount(type: EventType): int
         + clearAll(): void
     }
 }
 
-package "com.mehdi.petreminder.service" {
+package "com.mehdi.petreminder.service" #LightPink {
     class PetService {
         - repository: IRepository<Pet>
         + addPet(pet: Pet): Pet
@@ -154,48 +214,143 @@ package "com.mehdi.petreminder.service" {
         + deletePet(id: int): void
         + searchByName(name: String): List<Pet>
         + filterBySpecies(species: String): List<Pet>
+        + getPetCount(): int
+        + close(): void
+        - validatePet(pet: Pet): void
     }
+
     class ReminderService {
         - repository: IRepository<Reminder>
-        + addReminder(reminder: Reminder): Reminder
-        + getRemindersForPet(petId: int): List<Reminder>
-        + completeReminder(id: int): void
+        + addReminder(r: Reminder): Reminder
+        + getReminderById(id: int): Reminder
+        + getAllReminders(): List<Reminder>
+        + getPendingReminders(): List<Reminder>
+        + getOverdueReminders(): List<Reminder>
+        + getRemindersByPetId(petId: int): List<Reminder>
+        + markCompleted(id: int): void
+        + updateReminder(r: Reminder): void
+        + deleteReminder(id: int): void
+        + close(): void
+        - validateReminder(r: Reminder): void
     }
+
     class MedicalRecordService {
         - repository: IRepository<MedicalRecord>
+        + addRecord(record: MedicalRecord): MedicalRecord
+        + getRecordById(id: int): MedicalRecord
+        + getRecordsForPet(petId: int): List<MedicalRecord>
+        + updateRecord(record: MedicalRecord): void
+        + deleteRecord(id: int): void
+        + close(): void
     }
-    class ServiceException
+
+    class UserService {
+        - repository: IRepository<User>
+        + login(username: String, password: String): User
+        + register(user: User): User
+        + findByUsername(username: String): User
+        + close(): void
+    }
+
+    class ServiceException <<RuntimeException>>
 }
 
-package "com.mehdi.petreminder.config" {
+package "com.mehdi.petreminder.config" #Wheat {
     class StorageConfig {
         - {static} activeBackend: StorageType
         + {static} getActiveBackend(): StorageType
         + {static} setActiveBackend(type: StorageType): void
+        + {static} load(): void
+        + {static} save(): void
     }
+
     enum StorageType {
         BINARY
         SQLITE
         MYSQL
+        + getDisplayName(): String
     }
 }
 
-' ── Relations ──
+package "com.mehdi.petreminder.exception" #MistyRose {
+    class PetReminderException <<RuntimeException>> {
+        - message: String
+    }
+
+    class ValidationException extends PetReminderException {
+        - fieldName: String
+    }
+
+    class StorageException extends PetReminderException {
+    }
+
+    class ConnectionException extends StorageException {
+        - host: String
+        - port: int
+    }
+
+    class EntityNotFoundException extends PetReminderException {
+        - entityId: int
+        - entityType: String
+    }
+
+    class PetNotFoundException extends EntityNotFoundException {
+    }
+
+    class ReminderNotFoundException extends EntityNotFoundException {
+    }
+}
+
+package "com.mehdi.petreminder.app" #LightCyan {
+    class ConsoleApp {
+        - scanner: Scanner
+        - running: boolean
+        + start(): void
+        + showMainMenu(): void
+        + showPetsMenu(): void
+        + showRemindersMenu(): void
+        + showVetMenu(): void
+        + showMedicalMenu(): void
+        + showSettingsMenu(): void
+        + handleStorageSwitch(choice: String): void
+    }
+}
+
+' ── Associations ──
 User "1" -- "*" Pet : owns >
 Pet "1" -- "*" Reminder : has >
 Pet "1" -- "*" MedicalRecord : has history >
 
+' ── Service → Repository Dependencies ──
 PetService --> IRepository : uses
 PetService --> EventManager : notifies
 ReminderService --> IRepository : uses
 ReminderService --> EventManager : notifies
 MedicalRecordService --> IRepository : uses
+UserService --> IRepository : uses
 
+' ── App → Service Dependencies ──
+ConsoleApp --> PetService : uses
+ConsoleApp --> ReminderService : uses
+ConsoleApp --> MedicalRecordService : uses
+ConsoleApp --> UserService : uses
+ConsoleApp --> StorageConfig : configures
+
+' ── Factory Dependencies ──
 RepositoryFactory ..> BinaryRepository : creates
 RepositoryFactory ..> PetSqliteRepository : creates
 RepositoryFactory ..> PetMySqlRepository : creates
 RepositoryFactory --> StorageConfig : reads
 
+' ── Observer ──
 EventManager --> PetReminderObserver : notifies
+
+' ── <<throws>> Relationships ──
+PetService ..> PetNotFoundException : <<throws>>
+PetService ..> ValidationException : <<throws>>
+ReminderService ..> ReminderNotFoundException : <<throws>>
+ReminderService ..> ValidationException : <<throws>>
+BinaryRepository ..> StorageException : <<throws>>
+MySqlRepository ..> ConnectionException : <<throws>>
 
 @enduml

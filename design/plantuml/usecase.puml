@@ -1,34 +1,102 @@
 @startuml PetReminderUseCase
-actor "User (Pet Owner)" as User
+title Pet Care Reminder System — Use Case Diagram
+
+left to right direction
+skinparam actorFontSize 13
+skinparam usecaseFontSize 11
+
+actor "Pet Owner" as User
+actor "Guest User" as Guest
+actor "System\n(Scheduler)" as System
 
 rectangle "Pet Care Reminder System" {
-  usecase "Manage Pets" as UC1
-  usecase "Add New Pet" as UC1_1
-  usecase "View Pet Details" as UC1_2
-  
-  usecase "Manage Reminders" as UC2
-  usecase "Add Feeding/Med/Vet Reminder" as UC2_1
-  usecase "Mark Reminder as Complete" as UC2_2
-  
-  usecase "Monitor Health" as UC3
-  usecase "View Medical Records" as UC3_1
-  
-  usecase "System Settings" as UC4
-  usecase "Switch Storage Backend (Binary/SQLite/MySQL)" as UC4_1
+
+    package "User Authentication" {
+        usecase "Login" as UC_LOGIN
+        usecase "Register" as UC_REGISTER
+        usecase "Guest Mode" as UC_GUEST
+    }
+
+    package "Pet Management" {
+        usecase "List All Pets" as UC_PET_LIST
+        usecase "Add New Pet\n(Dog / Cat / Bird)" as UC_PET_ADD
+        usecase "Edit Pet" as UC_PET_EDIT
+        usecase "Delete Pet" as UC_PET_DEL
+        usecase "Search / Filter Pets" as UC_PET_SEARCH
+    }
+
+    package "Feeding & Medication Schedules" {
+        usecase "Manage Feeding Schedule" as UC_FEED
+        usecase "Manage Medication Reminders" as UC_MED
+    }
+
+    package "Veterinary Appointment Tracking" {
+        usecase "Schedule Vet Appointment" as UC_VET_ADD
+        usecase "View Vet Appointments" as UC_VET_LIST
+    }
+
+    package "Exercise & Grooming Reminders" {
+        usecase "Set Exercise Routine" as UC_EXERCISE
+        usecase "Set Grooming Schedule" as UC_GROOM
+    }
+
+    package "Medical Records" {
+        usecase "Add Medical Record" as UC_MED_ADD
+        usecase "View Medical Records" as UC_MED_VIEW
+    }
+
+    package "System Settings" {
+        usecase "Switch Storage Backend\n(Binary / SQLite / MySQL)" as UC_STORAGE
+    }
+
+    package "Automated Notifications" {
+        usecase "Overdue Reminder Alert" as UC_OVERDUE
+        usecase "Mark Reminder\nas Completed" as UC_COMPLETE
+    }
 }
 
-User --> UC1
-UC1 ..> UC1_1 : includes
-UC1 ..> UC1_2 : includes
+' ── Pet Owner (full access) ──
+User --> UC_LOGIN
+User --> UC_REGISTER
 
-User --> UC2
-UC2 ..> UC2_1 : includes
-UC2 ..> UC2_2 : includes
+User --> UC_PET_LIST
+User --> UC_PET_ADD
+User --> UC_PET_EDIT
+User --> UC_PET_DEL
 
-User --> UC3
-UC3 ..> UC3_1 : includes
+User --> UC_FEED
+User --> UC_MED
 
-User --> UC4
-UC4 ..> UC4_1 : includes
+User --> UC_VET_ADD
+User --> UC_VET_LIST
+
+User --> UC_EXERCISE
+User --> UC_GROOM
+
+User --> UC_MED_ADD
+User --> UC_MED_VIEW
+
+User --> UC_STORAGE
+User --> UC_COMPLETE
+
+' ── Guest User (read-only) ──
+Guest --> UC_GUEST
+Guest --> UC_PET_LIST
+Guest --> UC_VET_LIST
+
+' ── System actor ──
+System --> UC_OVERDUE
+
+' ── <<include>> Relationships ──
+UC_PET_ADD ..> UC_PET_LIST : <<include>>
+UC_FEED ..> UC_PET_LIST : <<include>>
+UC_MED ..> UC_PET_LIST : <<include>>
+UC_VET_ADD ..> UC_PET_LIST : <<include>>
+UC_EXERCISE ..> UC_PET_LIST : <<include>>
+UC_GROOM ..> UC_PET_LIST : <<include>>
+UC_MED_ADD ..> UC_PET_LIST : <<include>>
+
+' ── <<extend>> Relationships ──
+UC_PET_SEARCH ..> UC_PET_LIST : <<extend>>
 
 @enduml

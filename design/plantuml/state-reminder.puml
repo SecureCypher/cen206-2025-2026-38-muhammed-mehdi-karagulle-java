@@ -1,0 +1,94 @@
+@startuml StateReminder
+title Reminder Lifecycle — State Diagram
+
+skinparam stateFontSize 12
+
+[*] --> Created : new Reminder()
+
+state Created {
+    Created : Entry / validate() is called
+    Created : Entry / priority is assigned
+}
+
+Created --> Scheduled : save() to repository\n[validation passed]
+
+state Scheduled {
+    Scheduled : Entry / scheduledTime is set
+    Scheduled : Do / waiting for scheduled time
+}
+
+Scheduled --> TimeCheck : timer tick
+
+state TimeCheck <<choice>>
+
+TimeCheck --> DueSoon : [scheduledTime - now() < 1 hour]
+TimeCheck --> Scheduled : [scheduledTime - now() >= 1 hour]
+TimeCheck --> Overdue : [scheduledTime < now()]
+
+state DueSoon #FFFFAA {
+    DueSoon : Entry / EventManager.notify(REMINDER_DUE_SOON)
+    DueSoon : Do / highlighted in yellow in UI
+}
+
+DueSoon --> Overdue : scheduledTime has passed
+DueSoon --> Completed : markCompleted()\n[user marks as done]
+DueSoon --> Deleted : deleteReminder(id)
+
+Scheduled --> Completed : markCompleted()\n[user marks as done]
+Scheduled --> Updated : updateReminder()\n[user edits fields]
+
+state Overdue #FFcccc {
+    Overdue : Entry / EventManager.notify(REMINDER_OVERDUE)
+    Overdue : Do / highlighted in red in UI
+}
+
+Overdue --> Completed : markCompleted()
+Overdue --> Updated : updateReminder()\n[reschedule to new time]
+
+state Updated {
+    Updated : Entry / new scheduledTime set
+    Updated : Entry / repository.update()
+}
+
+Updated --> Scheduled : validation passed\n[new scheduledTime in future]
+Updated --> Overdue : [new scheduledTime still past]
+
+state Completed #ccFFcc {
+    Completed : Entry / setCompleted(true)
+    Completed : Entry / EventManager.notify(REMINDER_COMPLETED)
+    Completed : Entry / observers refresh panels
+}
+
+Completed --> Deleted : deleteReminder(id)
+
+state Deleted #cccccc {
+    Deleted : Entry / repository.delete(id)
+    Deleted : Entry / EventManager.notify(REMINDER_DELETED)
+}
+
+Deleted --> [*]
+
+note right of TimeCheck
+  **Time-based state transitions:**
+  The system periodically checks
+  scheduledTime against current time
+  to determine state transitions.
+end note
+
+note left of Created
+  **5 Reminder Subtypes & validate() rules:**
+  - FeedingReminder: foodType required, portionGrams > 0
+  - MedicationReminder: medicationName required, dosage > 0
+  - VetAppointment: clinicName required, estimatedCost >= 0
+  - GroomingReminder: groomingType required
+  - ExerciseReminder: exerciseType required, durationMinutes > 0
+end note
+
+note bottom of Scheduled
+  **Observer Pattern:**
+  Every state transition triggers
+  EventManager.notify() to update
+  DashboardPanel & RemindersPanel.
+end note
+
+@enduml

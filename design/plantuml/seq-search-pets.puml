@@ -1,0 +1,65 @@
+@startuml SeqSearchFilter
+title Search and Filter Pets - Sequence Diagram
+
+actor "Pet Owner" as User
+boundary "ConsoleApp" as UI
+control "PetService" as PS
+database "IRepository<Pet>" as Repo
+
+User -> UI : Selects "Search / Filter Pets"
+activate UI
+
+UI -> User : Prompt for search type:\n[1] Search by Name\n[2] Filter by Species
+User -> UI : Selects "1" (Search by Name)
+
+UI -> User : Prompt for pet name
+User -> UI : Enters "Max"
+
+UI -> PS : searchByName("Max")
+activate PS
+
+PS -> Repo : findAll()
+activate Repo
+Repo -> Repo : SELECT * FROM pets
+Repo --> PS : List<Pet>
+deactivate Repo
+
+PS -> PS : Filter pets where\nname.contains("Max")
+
+PS --> UI : List<Pet> matching results
+deactivate PS
+
+alt Results Found
+    UI -> UI : Display pet table:\n| ID | Name | Species | Breed | Age |
+    UI -> User : "Found 2 matching pets."
+else No Results
+    UI -> User : "No pets found matching 'Max'."
+end
+
+deactivate UI
+
+== Filter by Species ==
+
+User -> UI : Selects "2" (Filter by Species)
+activate UI
+
+UI -> User : Prompt for species (Dog/Cat/Bird)
+User -> UI : Enters "Dog"
+
+UI -> PS : filterBySpecies("Dog")
+activate PS
+
+PS -> Repo : findAll()
+activate Repo
+Repo --> PS : List<Pet>
+deactivate Repo
+
+PS -> PS : Filter pets where\nspecies.equals("Dog")
+
+PS --> UI : List<Pet> filtered results
+deactivate PS
+
+UI -> User : Display filtered pet table
+deactivate UI
+
+@enduml
