@@ -1,5 +1,8 @@
 # PetReminder Application
 
+[![Java CI with Maven](https://github.com/SecureCypher/cen206-2025-2026-38-muhammed-mehdi-karagulle-java/actions/workflows/ci.yml/badge.svg)](https://github.com/SecureCypher/cen206-2025-2026-38-muhammed-mehdi-karagulle-java/actions/workflows/ci.yml)
+[![Release](https://github.com/SecureCypher/cen206-2025-2026-38-muhammed-mehdi-karagulle-java/actions/workflows/release.yml/badge.svg)](https://github.com/SecureCypher/cen206-2025-2026-38-muhammed-mehdi-karagulle-java/actions/workflows/release.yml)
+
 ## Overview
 PetReminder is a comprehensive Java-based desktop application designed to help pet owners manage their pets' care routines, medical records, and veterinary appointments. 
 Built using modern Java technologies including Swing (with FlatLaf), JDBC (SQLite/MySQL), and JUnit 5, it ensures robust performance, excellent test coverage, and a user-friendly interface.
@@ -12,11 +15,24 @@ Built using modern Java technologies including Swing (with FlatLaf), JDBC (SQLit
 - **Data Persistence**: Supports SQLite for local storage and MySQL for distributed usage.
 
 ## Architecture
-- **Language**: Java 11+
+
+The project follows a **lib/app modular architecture** as required by the project guide:
+
+| Module | Path | Description |
+|--------|------|-------------|
+| **lib** | `petreminder-app/lib/` | Business logic: model, service, repository, observer, config |
+| **app** | `petreminder-app/app/` | Entry point + GUI (Swing panels) |
+| **test** | `*/src/test/java/` | Unit tests for both modules |
+
+- **Language**: Java 11/17
 - **UI Framework**: Java Swing with FlatLaf Light Theme and MigLayout
-- **Database**: SQLite (default), MySQL, H2 (Testing)
-- **Testing**: JUnit 5, Mockito
-- **Build Tool**: Apache Maven
+- **Database**: SQLite (default), MySQL (Docker), Binary, H2 (Testing)
+- **Storage**: IRepository pattern with runtime backend switching
+- **Design Patterns**: Observer, Factory Method, Template Method (min. 3 categories)
+- **Testing**: JUnit 5, Mockito — 100% instruction coverage
+- **Documentation**: Doxygen/Javadoc — 100% coverage
+- **Build Tool**: Apache Maven (multi-module)
+- **CI/CD**: GitHub Actions
 
 ## How to Run
 Use the provided batch scripts in the repository root:

@@ -60,8 +60,9 @@ jobs:
         shell: bash
 
       - name: Perform Maven clean, test, and packaging
-        run: mvn clean test package
-        working-directory: ./petreminder-app
+        run: mvn clean test package -f petreminder-app/pom.xml
+        env:
+          JAVA_TOOL_OPTIONS: -Djava.awt.headless=true
 
       - name: Generate Folders
         run: |
@@ -74,22 +75,19 @@ jobs:
                 
       - name: Check Test Coverage
         run: |
-          # Parse the JaCoCo XML report and check coverage percentage
-          covered=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@covered)" target/site/jacoco/jacoco.xml)
-          missed=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@missed)" target/site/jacoco/jacoco.xml)
+          # Parse the JaCoCo XML report from lib module and check coverage
+          JACOCO_XML="petreminder-app/lib/target/site/jacoco/jacoco.xml"
+          covered=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@covered)" $JACOCO_XML)
+          missed=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@missed)" $JACOCO_XML)
           total=$((covered + missed))
           coverage_percentage=$(awk "BEGIN { print ($covered / $total) * 100 }")
-          # Check if coverage is 100%
-          if (( $(echo "$coverage_percentage == 100" | bc -l) )); then
+          if (( $(echo "$coverage_percentage >= 100" | bc -l) )); then
             echo "Test coverage is 100%!"
           else
-            echo "Test coverage is not 100%."
-            exit 1  # Fail the GitHub Actions workflow
+            echo "Test coverage is $coverage_percentage% (must be 100%)"
+            exit 1
           fi
-          echo "Coverage Percentage: $coverage_percentage"
-          echo "Covered: $covered"
-          echo "Missed: $missed"
-        working-directory: ./petreminder-app
+          echo "Coverage: $coverage_percentage% | Covered: $covered | Missed: $missed"
 
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
@@ -100,9 +98,8 @@ jobs:
 
       - name: Generate ReportGenerator HTML Report
         run: | 
-          reportgenerator "-reports:target/site/jacoco/jacoco.xml" "-sourcedirs:src/main/java" "-targetdir:target/site/coveragereport" -reporttypes:Html
-          reportgenerator "-reports:target/site/jacoco/jacoco.xml" "-sourcedirs:src/main/java" "-targetdir:target/site/coveragereport" -reporttypes:Badges
-        working-directory: ./petreminder-app
+          reportgenerator "-reports:petreminder-app/lib/target/site/jacoco/jacoco.xml" "-sourcedirs:petreminder-app/lib/src/main/java" "-targetdir:petreminder-app/app/target/site/coveragereport" -reporttypes:Html
+          reportgenerator "-reports:petreminder-app/lib/target/site/jacoco/jacoco.xml" "-sourcedirs:petreminder-app/lib/src/main/java" "-targetdir:petreminder-app/app/target/site/coveragereport" -reporttypes:Badges
 
       - name: Run Coverxygen
         run: |

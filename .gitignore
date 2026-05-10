@@ -964,3 +964,9 @@ coverage*[.json, .xml, .info]
 /petreminder-app/src/site/resources/assets/.gitkeep
 /petreminder-app/src/site/resources/assets
 /petreminder-app/src/site/resources/images/rteu_logo.jpg
+
+# Video files (submitted via Teams ZIP only - do NOT commit)
+video/*.mp4
+video/*.avi
+video/*.mkv
+video/*.mov
