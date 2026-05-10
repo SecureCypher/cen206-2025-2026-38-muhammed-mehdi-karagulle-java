@@ -22,8 +22,8 @@ rd /S /Q "release" 2>nul
 mkdir release
 
 echo.
-echo [2/10] Maven clean, test, and package (multi-module)...
-call mvn clean test package -f petreminder-app\pom.xml
+echo [2/10] Maven clean, install, and package (multi-module)...
+call mvn clean install -f petreminder-app\pom.xml
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Maven build failed! Check the output above.
     pause
