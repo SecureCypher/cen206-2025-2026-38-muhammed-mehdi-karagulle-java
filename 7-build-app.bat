@@ -9,113 +9,98 @@ set "currentDir=%CD%"
 echo Change the current working directory to the script directory
 @cd /d "%~dp0"
 
-echo Delete generated folders and their contents
-rd /S /Q "petreminder-app\target\site\coverxygen"
-rd /S /Q "petreminder-app\target\site\coveragereport"
-rd /S /Q "petreminder-app\target\site\doxygen"
+echo =======================================================
+echo  PetReminder - Multi-Module Build Script
+echo  Modules: lib (business logic) + app (GUI)
+echo =======================================================
 
-echo Delete and recreate the "docs" folder (Doxygen PDF only)
+echo.
+echo [1/10] Cleaning generated folders...
+rd /S /Q "petreminder-app\app\target\site\coverxygen"  2>nul
+rd /S /Q "petreminder-app\app\target\site\coveragereport"  2>nul
+rd /S /Q "petreminder-app\app\target\site\doxygen"  2>nul
+rd /S /Q "petreminder-app\lib\target\site\coverxygen"  2>nul
+rd /S /Q "petreminder-app\lib\target\site\coveragereport"  2>nul
+
+echo.
+echo [2/10] Clean docs and release folders...
 rd /S /Q "docs"
 mkdir docs
-
-echo Delete and Create the "release" folder and its contents
 rd /S /Q "release"
 mkdir release
 
-echo Change directory to petreminder-app
-cd petreminder-app
+echo.
+echo [3/10] Maven clean, test, and package (multi-module)...
+call mvn clean test package -f petreminder-app\pom.xml
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Maven build failed! Check the output above.
+    pause
+    exit /b 1
+)
 
-echo Perform Maven clean, test, and packaging
-call mvn clean test package
+echo.
+echo [4/10] Create required output folders...
+mkdir "petreminder-app\app\target\site\coverxygen" 2>nul
+mkdir "petreminder-app\app\target\site\coveragereport" 2>nul
+mkdir "petreminder-app\app\target\site\doxygen" 2>nul
 
-echo Return to the previous directory
-cd ..
-
-echo Create Required Folders coverxygen/coveragereport/doxygen
-cd petreminder-app
-mkdir target
-cd target
-mkdir site
-cd site
-mkdir coverxygen
-mkdir coveragereport
-mkdir doxygen
-cd ..
-cd ..
-cd ..
-
-echo Generate Doxygen LaTeX/XML Documentation (PDF only, no HTML)
+echo.
+echo [5/10] Generate Doxygen LaTeX/XML Documentation...
 call doxygen Doxyfile
 
-echo Compile LaTeX to PDF (two passes for correct TOC and references)
-pushd petreminder-app\target\site\doxygen\latex
+echo.
+echo [6/10] Compile LaTeX to PDF...
+pushd petreminder-app\app\target\site\doxygen\latex
 pdflatex -interaction=batchmode refman.tex
 pdflatex -interaction=batchmode refman.tex
 popd
 
-echo Copy Doxygen PDF to docs\ folder (Doxygen PDF only, per project guide)
-copy "petreminder-app\target\site\doxygen\latex\refman.pdf" "docs\petreminder-documentation.pdf"
+echo.
+echo [7/10] Copy Doxygen PDF to docs\ folder...
+copy "petreminder-app\app\target\site\doxygen\latex\refman.pdf" "docs\petreminder-documentation.pdf"
 
-echo Change directory to petreminder-app
-cd petreminder-app
+echo.
+echo [8/10] Generate ReportGenerator HTML Report and Badges...
+echo NOTE: JaCoCo report is from the lib module (business logic)
+call reportgenerator "-reports:petreminder-app\lib\target\site\jacoco\jacoco.xml" "-sourcedirs:petreminder-app\lib\src\main\java" "-targetdir:petreminder-app\app\target\site\coveragereport" -reporttypes:Html
+call reportgenerator "-reports:petreminder-app\lib\target\site\jacoco\jacoco.xml" "-sourcedirs:petreminder-app\lib\src\main\java" "-targetdir:petreminder-app\app\target\site\coveragereport" -reporttypes:Badges
 
-echo Generate ReportGenerator HTML Report
-call reportgenerator "-reports:target\site\jacoco\jacoco.xml" "-sourcedirs:src\main\java" "-targetdir:target\site\coveragereport" -reporttypes:Html
+echo.
+echo [9/10] Run Coverxygen (documentation coverage)...
+call python -m coverxygen --xml-dir ./petreminder-app/app/target/site/doxygen/xml --src-dir ./ --format lcov --output ./petreminder-app/app/target/site/coverxygen/lcov.info --prefix %currentDir%/petreminder-app/
 
-echo Generate ReportGenerator Badges
-call reportgenerator "-reports:target\site\jacoco\jacoco.xml" "-sourcedirs:src\main\java" "-targetdir:target\site\coveragereport" -reporttypes:Badges
+echo Run lcov genhtml...
+call perl C:\ProgramData\chocolatey\lib\lcov\tools\bin\genhtml --legend --title "Documentation Coverage Report" ./petreminder-app/app/target/site/coverxygen/lcov.info -o petreminder-app/app/target/site/coverxygen
 
-echo Display information about the binary file
-echo Our Binary is a Single Jar With Dependencies. You Do Not Need to Compress It.
+echo.
+echo [10/10] Copy badges and package release artifacts...
+call copy "petreminder-app\app\target\site\coveragereport\badge_combined.svg"      "assets\badge_combined.svg"
+call copy "petreminder-app\app\target\site\coveragereport\badge_branchcoverage.svg" "assets\badge_branchcoverage.svg"
+call copy "petreminder-app\app\target\site\coveragereport\badge_linecoverage.svg"   "assets\badge_linecoverage.svg"
+call copy "petreminder-app\app\target\site\coveragereport\badge_methodcoverage.svg" "assets\badge_methodcoverage.svg"
 
-echo Return to the previous directory
-cd ..
+call copy "assets\rteu_logo.jpg" "petreminder-app\app\src\site\resources\images\rteu_logo.jpg" 2>nul
+call robocopy assets "petreminder-app\app\src\site\resources\assets" /E
+call copy README.md "petreminder-app\app\src\site\markdown\readme.md" 2>nul
 
-echo Run Coverxygen
-call python -m coverxygen --xml-dir ./petreminder-app/target/site/doxygen/xml --src-dir ./ --format lcov --output ./petreminder-app/target/site/coverxygen/lcov.info --prefix %currentDir%/petreminder-app/
+echo.
+echo Generating Maven site...
+call mvn site -f petreminder-app\pom.xml
 
-echo Run lcov genhtml
-call perl C:\ProgramData\chocolatey\lib\lcov\tools\bin\genhtml --legend --title "Documentation Coverage Report" ./petreminder-app/target/site/coverxygen/lcov.info -o petreminder-app/target/site/coverxygen
+echo.
+echo Packaging release artifacts...
+tar -czvf release\application-binary.tar.gz -C petreminder-app\app\target petreminder-app-2.0.0.jar
+call tar -czvf release\test-jacoco-report.tar.gz       -C petreminder-app\lib\target\site\jacoco .
+call tar -czvf release\test-coverage-report.tar.gz     -C petreminder-app\app\target\site\coveragereport .
+call tar -czvf release\application-documentation.tar.gz -C petreminder-app\app\target\site\doxygen .
+call tar -czvf release\doc-coverage-report.tar.gz      -C petreminder-app\app\target\site\coverxygen .
+call tar -czvf release\application-site.tar.gz         -C petreminder-app\app\target\site .
 
-echo Copy badge files to the "assets" directory
-call copy "petreminder-app\target\site\coveragereport\badge_combined.svg" "assets\badge_combined.svg"
-call copy "petreminder-app\target\site\coveragereport\badge_combined.svg" "assets\badge_combined.svg"
-call copy "petreminder-app\target\site\coveragereport\badge_branchcoverage.svg" "assets\badge_branchcoverage.svg"
-call copy "petreminder-app\target\site\coveragereport\badge_linecoverage.svg" "assets\badge_linecoverage.svg"
-call copy "petreminder-app\target\site\coveragereport\badge_methodcoverage.svg" "assets\badge_methodcoverage.svg"
-
-call copy "assets\rteu_logo.jpg" "petreminder-app\src\site\resources\images\rteu_logo.jpg"
-
-echo Copy the "assets" folder and its contents to "maven site images" recursively
-call robocopy assets "petreminder-app\src\site\resources\assets" /E
-
-echo Copy the "README.md" file to "petreminder-app\src\site\markdown\readme.md"
-call copy README.md "petreminder-app\src\site\markdown\readme.md"
-
-cd petreminder-app
-echo Perform Maven site generation
-call mvn site
-cd ..
-
-echo Package Output Jar Files
-tar -czvf release\application-binary.tar.gz -C petreminder-app\target '*.jar'
-
-echo Package Jacoco Test Coverage Report (Optional)
-call tar -czvf release\test-jacoco-report.tar.gz -C petreminder-app\target\site\jacoco .
-
-echo Package ReportGenerator Test Coverage Report
-call tar -czvf release\test-coverage-report.tar.gz -C petreminder-app\target\site\coveragereport .
-
-echo Package Code Documentation
-call tar -czvf release\application-documentation.tar.gz -C petreminder-app\target\site\doxygen .
-
-echo Package Documentation Coverage
-call tar -czvf release\doc-coverage-report.tar.gz -C petreminder-app\target\site\coverxygen .
-
-echo Package Product Site
-call tar -czvf release\application-site.tar.gz -C petreminder-app\target\site .
-
-echo ....................
-echo Operation Completed!
-echo ....................
+echo.
+echo =======================================================
+echo  BUILD COMPLETE - Artifacts in .\release\
+echo  Run app: java -jar petreminder-app\app\target\petreminder-app-2.0.0.jar
+echo  JaCoCo:  petreminder-app\lib\target\site\jacoco\index.html
+echo  Coverage: petreminder-app\app\target\site\coveragereport\index.html
+echo =======================================================
 pause
