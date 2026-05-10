@@ -301,18 +301,54 @@ package "com.mehdi.petreminder.exception" #MistyRose {
     }
 }
 
-package "com.mehdi.petreminder.app" #LightCyan {
-    class ConsoleApp {
-        - scanner: Scanner
-        - running: boolean
-        + start(): void
-        + showMainMenu(): void
-        + showPetsMenu(): void
-        + showRemindersMenu(): void
-        + showVetMenu(): void
-        + showMedicalMenu(): void
-        + showSettingsMenu(): void
-        + handleStorageSwitch(choice: String): void
+package "com.mehdi.petreminder.gui (app module)" #LightCyan {
+    class MainFrame <<PetReminderObserver>> {
+        - petService: PetService
+        - reminderService: ReminderService
+        - medicalService: MedicalRecordService
+        - navPanel: NavPanel
+        + initUI(): void
+        + switchPanel(panel: JPanel): void
+        + onEvent(type: EventType, data: Object): void
+    }
+
+    class PetsPanel {
+        - petService: PetService
+        - tableModel: DefaultTableModel
+        + refreshTable(): void
+        + showAddDialog(): void
+        + showEditDialog(pet: Pet): void
+    }
+
+    class RemindersPanel {
+        - reminderService: ReminderService
+        + refreshTable(): void
+        + highlightOverdue(): void
+    }
+
+    class MedicalPanel {
+        - medicalService: MedicalRecordService
+        + refreshTable(): void
+    }
+
+    class VetPanel {
+        - reminderService: ReminderService
+        + refreshTable(): void
+    }
+
+    class SettingsPanel {
+        + applyStorageSwitch(type: StorageType): void
+    }
+
+    class NavPanel {
+        + setActiveButton(name: String): void
+    }
+
+    class GuiConstants {
+        + {static} NAV_COLOR: Color
+        + {static} PRIMARY: Color
+        + {static} TITLE_FONT: Font
+        + {static} NAV_WIDTH: int
     }
 }
 
@@ -329,12 +365,16 @@ ReminderService --> EventManager : notifies
 MedicalRecordService --> IRepository : uses
 UserService --> IRepository : uses
 
-' ── App → Service Dependencies ──
-ConsoleApp --> PetService : uses
-ConsoleApp --> ReminderService : uses
-ConsoleApp --> MedicalRecordService : uses
-ConsoleApp --> UserService : uses
-ConsoleApp --> StorageConfig : configures
+' ── GUI → Service Dependencies (MVC: View calls Controller/Service) ──
+MainFrame --> PetService : uses
+MainFrame --> ReminderService : uses
+MainFrame --> MedicalRecordService : uses
+MainFrame --> StorageConfig : reads
+PetsPanel --> PetService : uses
+RemindersPanel --> ReminderService : uses
+MedicalPanel --> MedicalRecordService : uses
+VetPanel --> ReminderService : uses
+SettingsPanel --> StorageConfig : switches
 
 ' ── Factory Dependencies ──
 RepositoryFactory ..> BinaryRepository : creates
